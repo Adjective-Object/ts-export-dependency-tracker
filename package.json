@@ -1,0 +1,43 @@
+{
+  "name": "ts-export-dependency-tracker",
+  "version": "0.0.1",
+  "author": "Max Huang-Hobbs <mhuan13@gmail.com>",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
+  "repository": "github:Adjective-Object/ts-export-dependency-tracker",
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -cw",
+    "test": "jest",
+    "format": "prettier --write ./src/**/*.ts ./scripts/**/*.js"
+  },
+  "dependencies": {
+    "typescript": "^3.7.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.23",
+    "@types/mz": "^0.0.32",
+    "@types/node": "^12.6.8",
+    "@types/webpack": "^4.39.8",
+    "jest": "^24.9.0",
+    "mz": "^2.7.0",
+    "prettier": "^1.19.1",
+    "rollup-plugin-typescript2": "^0.22.0",
+    "rollup": "^1.17.0",
+    "source-map": "^0.7.3",
+    "ts-jest": "^24.1.0"
+  },
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "ts-jest"
+    },
+    "testRegex": "src.*(/__tests__/.*|\\.(test|spec))\\.(ts|tsx)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ]
+  }
+}

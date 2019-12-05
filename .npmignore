@@ -1,0 +1,13 @@
+# don't bundle build inputs
+src
+# don't bundle tests
+*/__tests__/*
+#don't bundle build config or build intermediates
+rollup.config.js
+tsconfig.json
+.rpt2_cache
+example-data
+.vscode
+scripts
+*.log
+.prettierrc
