@@ -4,33 +4,99 @@ import {
     ImportDeclaration,
     isExportDeclaration,
     isStringLiteral,
-    ImportSpecifier,
     isImportSpecifier,
     ExportDeclaration,
     isExportSpecifier,
+    isExportAssignment,
+    ExportAssignment,
+    isIdentifier,
+    Node,
+    isFunctionDeclaration,
+    SyntaxKind,
+    FunctionDeclaration,
+    isVariableStatement,
+    VariableStatement,
 } from 'typescript';
-import { importDeclaration } from '@babel/types';
-import { fileURLToPath } from 'url';
 
 type ExportIdentifier = string;
 type ModuleSymbolIdentifier = string;
-type ImportIdentifier = string;
+type ImportModuleIdentifier = string;
 
-type ExportImportMap = Map<ExportIdentifier, ImportIdentifier>;
+type ExportImportMap = Map<ExportIdentifier, ImportModuleIdentifier>;
 
 interface PartialImportSymbolMap {
-    newImports: Set<ImportIdentifier>;
-    newTrackedSymbols: Map<ModuleSymbolIdentifier, Set<ImportIdentifier>>;
+    importModuleIdentifiers: Set<ImportModuleIdentifier>;
+    moduleSymbolsToOtherModuleSymbols: Map<
+        ModuleSymbolIdentifier,
+        Set<ModuleSymbolIdentifier>
+    >;
+    moduleSymbolsToImports: Map<
+        ModuleSymbolIdentifier,
+        Set<ImportModuleIdentifier>
+    >;
+    moduleExportsToModuleSymbols: Map<
+        ExportIdentifier,
+        Set<ModuleSymbolIdentifier>
+    >;
+    moduleExportsToDirectImports: Map<ExportIdentifier, ImportModuleIdentifier>;
 }
+
+const getEmptySymbolMap = (): PartialImportSymbolMap => ({
+    importModuleIdentifiers: new Set(),
+    moduleSymbolsToOtherModuleSymbols: new Map(),
+    moduleSymbolsToImports: new Map(),
+    moduleExportsToModuleSymbols: new Map(),
+    moduleExportsToDirectImports: new Map(),
+});
+
+const mergeMapOfSets = <T, V>(
+    mapOfSets1: Map<T, Set<V>>,
+    mapOfSets2: Map<T, Set<V>>,
+) => {
+    const finalMap = new Map([...mapOfSets1.entries()]);
+
+    for (let [k, vset] of mapOfSets2.entries()) {
+        const buildingVSet = finalMap.get(k);
+        if (buildingVSet) {
+            for (let v of vset) {
+                buildingVSet.add(v);
+            }
+        }
+    }
+
+    return finalMap;
+};
+
+const mergeSymbolMap = (
+    m1: PartialImportSymbolMap,
+    m2: PartialImportSymbolMap,
+): PartialImportSymbolMap => ({
+    importModuleIdentifiers: new Set([
+        ...m1.importModuleIdentifiers,
+        ...m2.importModuleIdentifiers,
+    ]),
+    moduleSymbolsToOtherModuleSymbols: mergeMapOfSets(
+        m1.moduleSymbolsToImports,
+        m2.moduleSymbolsToImports,
+    ),
+    moduleSymbolsToImports: mergeMapOfSets(
+        m1.moduleSymbolsToImports,
+        m2.moduleSymbolsToImports,
+    ),
+    moduleExportsToModuleSymbols: mergeMapOfSets(
+        m1.moduleExportsToModuleSymbols,
+        m2.moduleExportsToModuleSymbols,
+    ),
+    moduleExportsToDirectImports: new Map([
+        ...m1.moduleExportsToDirectImports.entries(),
+        ...m2.moduleExportsToDirectImports.entries(),
+    ]),
+});
 
 function getBindingsFromImportDeclaration(
     importDeclarationNode: ImportDeclaration,
 ): PartialImportSymbolMap {
-    const newImports: Set<ImportIdentifier> = new Set();
-    const newTrackedSymbols: Map<
-        ModuleSymbolIdentifier,
-        Set<ImportIdentifier>
-    > = new Map();
+    const symbols = getEmptySymbolMap();
 
     if (!isStringLiteral(importDeclarationNode.moduleSpecifier)) {
         throw new Error(
@@ -39,11 +105,11 @@ function getBindingsFromImportDeclaration(
         );
     }
     const moduleSpecifier = importDeclarationNode.moduleSpecifier.text;
-    newImports.add(moduleSpecifier);
+    symbols.importModuleIdentifiers.add(moduleSpecifier);
 
     if (importDeclarationNode.importClause?.name) {
         // this is a default import
-        newTrackedSymbols.set(
+        symbols.moduleSymbolsToImports.set(
             importDeclarationNode.importClause.name.text,
             new Set([moduleSpecifier]),
         );
@@ -56,7 +122,7 @@ function getBindingsFromImportDeclaration(
                     );
                 }
 
-                newTrackedSymbols.set(
+                symbols.moduleSymbolsToImports.set(
                     specifier.name.text,
                     new Set([moduleSpecifier]),
                 );
@@ -69,22 +135,13 @@ function getBindingsFromImportDeclaration(
         );
     }
 
-    return { newImports, newTrackedSymbols };
+    return symbols;
 }
 
 export function getBindingsFromExportDeclaration(
     exportDeclarationNode: ExportDeclaration,
 ): PartialImportSymbolMap {
-    const newImports: Set<ImportIdentifier> = new Set();
-    const newTrackedSymbols: Map<
-        ModuleSymbolIdentifier,
-        Set<ImportIdentifier>
-    > = new Map();
-    const directExports: Map<ExportIdentifier, ImportIdentifier> = new Map();
-    const moduleExports: Map<
-        ExportIdentifier,
-        Set<ModuleSymbolIdentifier>
-    > = new Map();
+    const symbols = getEmptySymbolMap();
 
     // track imports and exports
     let moduleSpecifier: string | null = null;
@@ -97,13 +154,16 @@ export function getBindingsFromExportDeclaration(
         }
 
         moduleSpecifier = exportDeclarationNode.moduleSpecifier.text;
-        newImports.add(moduleSpecifier);
+        symbols.importModuleIdentifiers.add(moduleSpecifier);
     }
 
     if (exportDeclarationNode.name) {
         // single export statement
         if (moduleSpecifier) {
-            directExports.set(exportDeclarationNode.name.text, moduleSpecifier);
+            symbols.moduleExportsToDirectImports.set(
+                exportDeclarationNode.name.text,
+                moduleSpecifier,
+            );
         } else {
             // if the export is a name and there is no module specifier, this is illegal.
             throw new Error(
@@ -119,47 +179,156 @@ export function getBindingsFromExportDeclaration(
                 );
             }
 
-            newTrackedSymbols.set(
-                specifier.name.text,
-                new Set([moduleSpecifier]),
-            );
+            if (moduleSpecifier) {
+                symbols.moduleExportsToDirectImports.set(
+                    specifier.name.text,
+                    moduleSpecifier,
+                );
+            } else {
+                // Renamed export depends on the export
+                if (specifier.propertyName) {
+                    const existingSet =
+                        symbols.moduleExportsToModuleSymbols.get(
+                            specifier.name.text,
+                        ) || new Set();
+                    existingSet.add(specifier.propertyName.text);
+                    symbols.moduleExportsToModuleSymbols.set(
+                        specifier.name.text,
+                        existingSet,
+                    );
+                } else {
+                    const existingSet =
+                        symbols.moduleExportsToModuleSymbols.get(
+                            specifier.name.text,
+                        ) || new Set();
+                    existingSet.add(specifier.name.text);
+
+                    symbols.moduleExportsToModuleSymbols.set(
+                        specifier.name.text,
+                        existingSet,
+                    );
+                }
+            }
         });
     }
 
-    return {
-        newImports,
-        newTrackedSymbols,
-    };
+    return symbols;
+}
+
+export function getSymbolsReferencedInNode(
+    node: Node,
+): Set<ModuleSymbolIdentifier> {
+    // TODO handle variable shadowing
+
+    if (isIdentifier(node)) {
+        return new Set([node.text]);
+    } else if (node.getChildCount() !== 0) {
+        const childNodesSymbols = node
+            .getChildren()
+            .map(child => getSymbolsReferencedInNode(child));
+        const mergedChildren = new Set<ModuleSymbolIdentifier>();
+
+        for (let childNodeSymbols of childNodesSymbols) {
+            for (let childNodeSymbol of childNodeSymbols) {
+                mergedChildren.add(childNodeSymbol);
+            }
+        }
+
+        return mergedChildren;
+    } else {
+        return new Set();
+    }
+}
+
+export function getBindingsFromExportAssignment(
+    exportAssignment: ExportAssignment,
+): PartialImportSymbolMap {
+    const symbols = getEmptySymbolMap();
+
+    symbols.moduleExportsToModuleSymbols.set(
+        'default',
+        getSymbolsReferencedInNode(exportAssignment.expression),
+    );
+
+    return symbols;
+}
+
+function getBindingsFromExportedFunctionDeclaration(
+    fnDeclaration: FunctionDeclaration,
+): PartialImportSymbolMap {
+    const symbols = getEmptySymbolMap();
+    const referencedSymbols = getSymbolsReferencedInNode(fnDeclaration);
+
+    if (
+        fnDeclaration.modifiers?.some(
+            modifier => modifier.kind === SyntaxKind.DefaultKeyword,
+        )
+    ) {
+        // default export
+        symbols.moduleExportsToModuleSymbols.set('default', referencedSymbols);
+    } else if (fnDeclaration.name) {
+        symbols.moduleExportsToModuleSymbols.set(
+            fnDeclaration.name.text,
+            referencedSymbols,
+        );
+    } else {
+        throw new Error(
+            'encountered exported function declaration with no `default` modifier nor function name: ' +
+                fnDeclaration.getText(),
+        );
+    }
+
+    return symbols;
+}
+
+function getBindingsFromVariableStatement(
+    variableStatement: VariableStatement,
+): PartialImportSymbolMap {
+    const symbols = getEmptySymbolMap();
+
+    const isExported = variableStatement.modifiers?.some(
+        modifier => modifier.kind === SyntaxKind.ExportKeyword,
+    );
+    const targetMap = isExported
+        ? symbols.moduleExportsToModuleSymbols
+        : symbols.moduleSymbolsToOtherModuleSymbols;
+
+    // TODO getting the actual bindings and setting them in the map.
+    // need to handle array and object destructuring assignment here as well..
+
+    for (let declaration of variableStatement.declarationList.declarations) {
+        const initializerSymbols = getSymbolsReferencedInNode(declaration);
+    }
+
+    return symbols;
 }
 
 function getExportMap(file: SourceFile): ExportImportMap {
-    let imports: Set<ImportIdentifier> = new Set();
-    let trackedSymbols: Map<
-        ModuleSymbolIdentifier,
-        Set<ImportIdentifier>
-    > = new Map();
+    let symbols = getEmptySymbolMap();
 
     file.forEachChild(node => {
         if (isImportDeclaration(node)) {
-            const {
-                newImports,
-                newTrackedSymbols,
-            } = getBindingsFromImportDeclaration(node);
-            imports = new Set([...imports, ...newImports]);
-            trackedSymbols = new Map([
-                ...trackedSymbols.entries(),
-                ...newTrackedSymbols.entries(),
-            ]);
+            const newSymbols = getBindingsFromImportDeclaration(node);
+            symbols = mergeSymbolMap(symbols, newSymbols);
         } else if (isExportDeclaration(node)) {
-            const {
-                newImports,
-                newTrackedSymbols,
-            } = getBindingsFromExportDeclaration(node);
-            imports = new Set([...imports, ...newImports]);
-            trackedSymbols = new Map([
-                ...trackedSymbols.entries(),
-                ...newTrackedSymbols.entries(),
-            ]);
+            const newSymbols = getBindingsFromExportDeclaration(node);
+            symbols = mergeSymbolMap(symbols, newSymbols);
+        } else if (isExportAssignment(node)) {
+            const newSymbols = getBindingsFromExportAssignment(node);
+            symbols = mergeSymbolMap(symbols, newSymbols);
+        } else if (
+            isFunctionDeclaration(node) &&
+            node.modifiers?.some(
+                modifier => modifier.kind === SyntaxKind.ExportKeyword,
+            )
+        ) {
+            const newSymbols = getBindingsFromExportedFunctionDeclaration(node);
+            symbols = mergeSymbolMap(symbols, newSymbols);
+        } else if (isVariableStatement(node)) {
+            const newSymbols = getBindingsFromVariableStatement(node);
+            symbols = mergeSymbolMap(symbols, newSymbols);
         }
     });
+
+    // TODO convert symbol map into direct import / export map
 }
