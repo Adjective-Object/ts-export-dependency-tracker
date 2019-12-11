@@ -16,6 +16,13 @@ import {
     FunctionDeclaration,
     isVariableStatement,
     VariableStatement,
+    VariableDeclarationList,
+    VariableDeclaration,
+    isArrayBindingPattern,
+    isArrayLiteralExpression,
+    isObjectLiteralExpression,
+    isObjectBindingPattern,
+    isPropertyAssignment,
 } from 'typescript';
 
 type ExportIdentifier = string;
@@ -281,6 +288,110 @@ function getBindingsFromExportedFunctionDeclaration(
     return symbols;
 }
 
+/**
+ * get mapping of something to something else
+ */
+function getDeclaredSymbolDependencies(
+    node: VariableDeclarationList,
+): Map<ModuleSymbolIdentifier, Set<ModuleSymbolIdentifier>> {
+    const declaredSymbols: Map<
+        ModuleSymbolIdentifier,
+        Set<ModuleSymbolIdentifier>
+    > = new Map();
+
+    node.declarations.forEach((declaration: VariableDeclaration) => {
+        if (isIdentifier(declaration.name)) {
+            // If there are variables with no initialing expression but are still being declared,
+            // skip over them
+            const boundName = bindingElement.getText();
+            if (declaredSymbols.has(boundName)) {
+                throw new Error(
+                    `duplicate symbol ${boundName} bound in variable declaration list`,
+                );
+            }
+            declaredSymbols.set(
+                boundName,
+                new Set(
+                    declaration.initializer
+                        ? getSymbolsReferencedInNode(declaration.initializer)
+                        : new Set(),
+                ),
+            );
+        } else if (isArrayBindingPattern(declaration.name)) {
+            const bindingElements = declaration.name.elements;
+            const initializer = declaration.initializer;
+            if (!initializer || !isArrayLiteralExpression(initializer)) {
+                return;
+            }
+            for (let i = 0; i < bindingElements.length; i++) {
+                const initializingElement = initializer.elements[i];
+                // If there are elements with no initialing expression but are still being declared,
+                // skip over them
+                const boundName = bindingElements[i].getText();
+                if (declaredSymbols.has(boundName)) {
+                    throw new Error(
+                        `duplicate symbol ${boundName} bound in variable declaration list`,
+                    );
+                }
+                declaredSymbols.set(
+                    boundName,
+                    new Set(
+                        initializingElement
+                            ? getSymbolsReferencedInNode(initializingElement)
+                            : new Set(),
+                    ),
+                );
+            }
+        } else if (isObjectBindingPattern(declaration.name)) {
+            const bindingElements = declaration.name.elements;
+            for (let bindingElement of bindingElements) {
+                const initializer = declaration.initializer;
+                if (!initializer || !isObjectLiteralExpression(initializer)) {
+                    continue;
+                }
+                const matchingProps = initializer.properties.filter(
+                    prop =>
+                        prop.name &&
+                        prop.name.getText() ===
+                            (
+                                bindingElement.propertyName ||
+                                bindingElement.name
+                            ).getText(),
+                );
+                if (matchingProps.length !== 1) {
+                    continue;
+                }
+                const matchingProp = matchingProps[0];
+                if (
+                    // This should be a redundant cast because we're inside an object
+                    isPropertyAssignment(matchingProp)
+                ) {
+                    const boundName = bindingElement.getText();
+                    if (declaredSymbols.has(boundName)) {
+                        throw new Error(
+                            `duplicate symbol ${boundName} bound in variable declaration list`,
+                        );
+                    }
+                    declaredSymbols.set(
+                        boundName,
+                        new Set(
+                            matchingProp.initializer
+                                ? getSymbolsReferencedInNode(
+                                      matchingProp.initializer,
+                                  )
+                                : new Set(),
+                        ),
+                    );
+                }
+            }
+        } else {
+            throw new Error(`Unknown declaration of kind ${declaration.kind}`);
+        }
+    });
+
+    return declaredSymbols;
+}
+
 function getBindingsFromVariableStatement(
     variableStatement: VariableStatement,
 ): PartialImportSymbolMap {
@@ -295,6 +406,20 @@ function getBindingsFromVariableStatement(
 
     // TODO getting the actual bindings and setting them in the map.
     // need to handle array and object destructuring assignment here as well..
+
+    const declaedDependencies = getDeclaredSymbolDependencies(
+        variableStatement.declarationList,
+    );
+
+    for (let [identifier, dependencies] of declaedDependencies.entries()) {
+        if (targetMap.has(identifier)) {
+            throw new Error(
+                `duplicate identifiers in target map: ${idnetifier}`,
+            );
+        }
+
+        targetMap.set(identifier, dependencies);
+    }
 
     for (let declaration of variableStatement.declarationList.declarations) {
         const initializerSymbols = getSymbolsReferencedInNode(declaration);
@@ -331,4 +456,5 @@ function getExportMap(file: SourceFile): ExportImportMap {
     });
 
     // TODO convert symbol map into direct import / export map
+    
 }
