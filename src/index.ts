@@ -23,13 +23,15 @@ import {
     isObjectLiteralExpression,
     isObjectBindingPattern,
     isPropertyAssignment,
+    isNamespaceImport,
+    isNamedImports,
 } from 'typescript';
 
 type ExportIdentifier = string;
 type ModuleSymbolIdentifier = string;
 type ImportModuleIdentifier = string;
 
-type ExportImportMap = Map<ExportIdentifier, ImportModuleIdentifier>;
+type ExportImportMap = Map<ExportIdentifier, Set<ImportModuleIdentifier>>;
 
 interface PartialImportSymbolMap {
     importModuleIdentifiers: Set<ImportModuleIdentifier>;
@@ -107,8 +109,11 @@ function getBindingsFromImportDeclaration(
 
     if (!isStringLiteral(importDeclarationNode.moduleSpecifier)) {
         throw new Error(
-            "import declaration's module specifier was not a string literal: " +
-                importDeclarationNode.getFullText(),
+            `import declaration's module specifier was not a string literal: ${JSON.stringify(
+                importDeclarationNode,
+                null,
+                2,
+            )}`,
         );
     }
     const moduleSpecifier = importDeclarationNode.moduleSpecifier.text;
@@ -121,27 +126,38 @@ function getBindingsFromImportDeclaration(
             new Set([moduleSpecifier]),
         );
     } else if (importDeclarationNode.importClause?.namedBindings) {
-        importDeclarationNode.importClause.namedBindings.forEachChild(
-            specifier => {
-                if (!isImportSpecifier(specifier)) {
-                    throw new Error(
-                        'import clause had a child which was not an import specifier',
-                    );
-                }
-
-                symbols.moduleSymbolsToImports.set(
-                    specifier.name.text,
-                    new Set([moduleSpecifier]),
-                );
-            },
-        );
-    } else {
-        throw new Error(
-            'import declaration had neither name nor namedBindings: ' +
-                importDeclarationNode.getFullText(),
-        );
+        const namedBindings = importDeclarationNode.importClause.namedBindings;
+        if (isNamespaceImport(namedBindings)) {
+            symbols.moduleSymbolsToImports.set(
+                namedBindings.name.text,
+                new Set([moduleSpecifier]),
+            );
+        } else if (isNamedImports(namedBindings)) {
+            importDeclarationNode.importClause.namedBindings.forEachChild(
+                specifier => {
+                    if (isImportSpecifier(specifier)) {
+                        symbols.moduleSymbolsToImports.set(
+                            specifier.name.text,
+                            new Set([moduleSpecifier]),
+                        );
+                    } else if (isNamespaceImport(specifier)) {
+                        symbols.moduleSymbolsToImports.set(
+                            specifier.name.text,
+                            new Set([moduleSpecifier]),
+                        );
+                    } else {
+                        throw new Error(
+                            `import clause named imports had an unexpected child: ${JSON.stringify(
+                                specifier,
+                                null,
+                                2,
+                            )}`,
+                        );
+                    }
+                },
+            );
+        }
     }
-
     return symbols;
 }
 
@@ -155,8 +171,11 @@ export function getBindingsFromExportDeclaration(
     if (exportDeclarationNode.moduleSpecifier) {
         if (!isStringLiteral(exportDeclarationNode.moduleSpecifier)) {
             throw new Error(
-                "export declaration's module specifier was not a string literal: " +
-                    exportDeclarationNode.getFullText(),
+                `export declaration's module specifier was not a string literal: ${JSON.stringify(
+                    exportDeclarationNode,
+                    null,
+                    2,
+                )}`,
             );
         }
 
@@ -174,8 +193,11 @@ export function getBindingsFromExportDeclaration(
         } else {
             // if the export is a name and there is no module specifier, this is illegal.
             throw new Error(
-                'export declaration had no module specifier but had a name. this is illegal: ' +
+                `export declaration had no module specifier but had a name. this is illegal: ${JSON.stringify(
                     exportDeclarationNode.getFullText(),
+                    null,
+                    2,
+                )}`,
             );
         }
     } else if (exportDeclarationNode?.exportClause) {
@@ -225,25 +247,17 @@ export function getBindingsFromExportDeclaration(
 export function getSymbolsReferencedInNode(
     node: Node,
 ): Set<ModuleSymbolIdentifier> {
-    // TODO handle variable shadowing
-
     if (isIdentifier(node)) {
         return new Set([node.text]);
-    } else if (node.getChildCount() !== 0) {
-        const childNodesSymbols = node
-            .getChildren()
-            .map(child => getSymbolsReferencedInNode(child));
+    } else {
         const mergedChildren = new Set<ModuleSymbolIdentifier>();
-
-        for (let childNodeSymbols of childNodesSymbols) {
-            for (let childNodeSymbol of childNodeSymbols) {
-                mergedChildren.add(childNodeSymbol);
-            }
-        }
+        node.forEachChild(childNode => {
+            getSymbolsReferencedInNode(childNode).forEach(symbol =>
+                mergedChildren.add(symbol),
+            );
+        });
 
         return mergedChildren;
-    } else {
-        return new Set();
     }
 }
 
@@ -280,8 +294,11 @@ function getBindingsFromExportedFunctionDeclaration(
         );
     } else {
         throw new Error(
-            'encountered exported function declaration with no `default` modifier nor function name: ' +
-                fnDeclaration.getText(),
+            `encountered exported function declaration with no 'default' modifier nor function name: ${JSON.stringify(
+                fnDeclaration,
+                null,
+                2,
+            )}`,
         );
     }
 
@@ -303,7 +320,7 @@ function getDeclaredSymbolDependencies(
         if (isIdentifier(declaration.name)) {
             // If there are variables with no initialing expression but are still being declared,
             // skip over them
-            const boundName = bindingElement.getText();
+            const boundName = declaration.name.text;
             if (declaredSymbols.has(boundName)) {
                 throw new Error(
                     `duplicate symbol ${boundName} bound in variable declaration list`,
@@ -404,9 +421,6 @@ function getBindingsFromVariableStatement(
         ? symbols.moduleExportsToModuleSymbols
         : symbols.moduleSymbolsToOtherModuleSymbols;
 
-    // TODO getting the actual bindings and setting them in the map.
-    // need to handle array and object destructuring assignment here as well..
-
     const declaedDependencies = getDeclaredSymbolDependencies(
         variableStatement.declarationList,
     );
@@ -414,21 +428,102 @@ function getBindingsFromVariableStatement(
     for (let [identifier, dependencies] of declaedDependencies.entries()) {
         if (targetMap.has(identifier)) {
             throw new Error(
-                `duplicate identifiers in target map: ${idnetifier}`,
+                `duplicate identifiers in target map: ${identifier}`,
             );
         }
 
         targetMap.set(identifier, dependencies);
     }
 
-    for (let declaration of variableStatement.declarationList.declarations) {
-        const initializerSymbols = getSymbolsReferencedInNode(declaration);
-    }
-
     return symbols;
 }
 
-function getExportMap(file: SourceFile): ExportImportMap {
+function reverseMap<TKey, TSetMember>(
+    m: Map<TKey, Set<TSetMember>>,
+): Map<TSetMember, Set<TKey>> {
+    const reversedMap = new Map();
+    for (let [key, members] of m.entries()) {
+        for (let member of members) {
+            if (!reversedMap.has(member)) {
+                reversedMap.set(member, new Set());
+            }
+            reversedMap.get(member)!.add(key);
+        }
+    }
+    return reversedMap;
+}
+
+function getAllDirectAndIndirectDependencies<T>(
+    depmap: Map<T, Set<T>>,
+    entrypoint: T,
+): Set<T> {
+    const visited = new Set<T>();
+    const frontier = [entrypoint];
+    while (frontier.length) {
+        const current = frontier.pop()!;
+        visited.add(current);
+        const currentDeps = depmap.get(current);
+        if (currentDeps) {
+            for (let dep of currentDeps) {
+                if (!visited.has(dep)) {
+                    frontier.push(dep);
+                }
+            }
+        }
+    }
+
+    return visited;
+}
+
+function getExportMapFromSymbolMap(
+    symbols: PartialImportSymbolMap,
+): ExportImportMap {
+    const exportToImportedModuleMapping: ExportImportMap = new Map();
+    for (let [
+        exportName,
+        importName,
+    ] of symbols.moduleExportsToDirectImports.entries()) {
+        exportToImportedModuleMapping.set(exportName, new Set([importName]));
+    }
+
+    // build reverse symbol maps
+    const importDeps = reverseMap(symbols.moduleSymbolsToImports);
+    const moduleSymbolDeps = reverseMap(
+        symbols.moduleSymbolsToOtherModuleSymbols,
+    );
+    const moduleSymbolsToExports = reverseMap(
+        symbols.moduleExportsToModuleSymbols,
+    );
+
+    for (let importName of importDeps.keys()) {
+        for (let moduleSymbolName of importDeps.get(importName)!) {
+            const theseModuleSymbolDependenices = getAllDirectAndIndirectDependencies(
+                moduleSymbolDeps,
+                moduleSymbolName,
+            );
+
+            for (let dep of theseModuleSymbolDependenices) {
+                if (moduleSymbolsToExports.has(dep)) {
+                    for (let exportName of moduleSymbolsToExports.get(dep)!) {
+                        if (!exportToImportedModuleMapping.has(exportName)) {
+                            exportToImportedModuleMapping.set(
+                                exportName,
+                                new Set<string>(),
+                            );
+                        }
+                        exportToImportedModuleMapping
+                            .get(exportName)!
+                            .add(importName);
+                    }
+                }
+            }
+        }
+    }
+
+    return exportToImportedModuleMapping;
+}
+
+export function getExportMap(file: SourceFile): ExportImportMap {
     let symbols = getEmptySymbolMap();
 
     file.forEachChild(node => {
@@ -455,6 +550,7 @@ function getExportMap(file: SourceFile): ExportImportMap {
         }
     });
 
-    // TODO convert symbol map into direct import / export map
-    
+    return getExportMapFromSymbolMap(symbols);
 }
+
+export default getExportMap;
