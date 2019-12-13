@@ -26,6 +26,7 @@ import {
     isNamespaceImport,
     isNamedImports,
 } from 'typescript';
+import { isFunction } from 'util';
 
 type ExportIdentifier = string;
 type ModuleSymbolIdentifier = string;
@@ -70,6 +71,8 @@ const mergeMapOfSets = <T, V>(
             for (let v of vset) {
                 buildingVSet.add(v);
             }
+        } else {
+            finalMap.set(k, new Set(vset));
         }
     }
 
@@ -85,8 +88,8 @@ const mergeSymbolMap = (
         ...m2.importModuleIdentifiers,
     ]),
     moduleSymbolsToOtherModuleSymbols: mergeMapOfSets(
-        m1.moduleSymbolsToImports,
-        m2.moduleSymbolsToImports,
+        m1.moduleSymbolsToOtherModuleSymbols,
+        m2.moduleSymbolsToOtherModuleSymbols,
     ),
     moduleSymbolsToImports: mergeMapOfSets(
         m1.moduleSymbolsToImports,
@@ -244,6 +247,12 @@ export function getBindingsFromExportDeclaration(
     return symbols;
 }
 
+/**
+ * Gets all identifiers reference inside a node.
+ *
+ * This should be redone to handle variable shadowing, etc.
+ * @param node
+ */
 export function getSymbolsReferencedInNode(
     node: Node,
 ): Set<ModuleSymbolIdentifier> {
@@ -274,31 +283,45 @@ export function getBindingsFromExportAssignment(
     return symbols;
 }
 
-function getBindingsFromExportedFunctionDeclaration(
+function getBindingsFromFunctionDeclaration(
     fnDeclaration: FunctionDeclaration,
 ): PartialImportSymbolMap {
     const symbols = getEmptySymbolMap();
     const referencedSymbols = getSymbolsReferencedInNode(fnDeclaration);
 
-    if (
-        fnDeclaration.modifiers?.some(
-            modifier => modifier.kind === SyntaxKind.DefaultKeyword,
-        )
-    ) {
-        // default export
-        symbols.moduleExportsToModuleSymbols.set('default', referencedSymbols);
-    } else if (fnDeclaration.name) {
-        symbols.moduleExportsToModuleSymbols.set(
+    const isExported = fnDeclaration.modifiers?.some(
+        modifier => modifier.kind === SyntaxKind.ExportKeyword,
+    );
+    const isDefault = fnDeclaration.modifiers?.some(
+        modifier => modifier.kind === SyntaxKind.DefaultKeyword,
+    );
+
+    if (isExported) {
+        if (isDefault) {
+            symbols.moduleExportsToModuleSymbols.set(
+                'default',
+                referencedSymbols,
+            );
+        } else if (fnDeclaration.name) {
+            symbols.moduleExportsToModuleSymbols.set(
+                fnDeclaration.name.text,
+                referencedSymbols,
+            );
+        } else {
+            throw new Error(
+                `encountered exported function declaration with no 'default' modifier nor function name: ${JSON.stringify(
+                    fnDeclaration,
+                    null,
+                    2,
+                )}`,
+            );
+        }
+    }
+
+    if (fnDeclaration.name) {
+        symbols.moduleSymbolsToOtherModuleSymbols.set(
             fnDeclaration.name.text,
             referencedSymbols,
-        );
-    } else {
-        throw new Error(
-            `encountered exported function declaration with no 'default' modifier nor function name: ${JSON.stringify(
-                fnDeclaration,
-                null,
-                2,
-            )}`,
         );
     }
 
@@ -523,7 +546,7 @@ function getExportMapFromSymbolMap(
     return exportToImportedModuleMapping;
 }
 
-export function getExportMap(file: SourceFile): ExportImportMap {
+export function getSymbolMap(file: SourceFile): PartialImportSymbolMap {
     let symbols = getEmptySymbolMap();
 
     file.forEachChild(node => {
@@ -536,19 +559,20 @@ export function getExportMap(file: SourceFile): ExportImportMap {
         } else if (isExportAssignment(node)) {
             const newSymbols = getBindingsFromExportAssignment(node);
             symbols = mergeSymbolMap(symbols, newSymbols);
-        } else if (
-            isFunctionDeclaration(node) &&
-            node.modifiers?.some(
-                modifier => modifier.kind === SyntaxKind.ExportKeyword,
-            )
-        ) {
-            const newSymbols = getBindingsFromExportedFunctionDeclaration(node);
+        } else if (isFunctionDeclaration(node)) {
+            const newSymbols = getBindingsFromFunctionDeclaration(node);
             symbols = mergeSymbolMap(symbols, newSymbols);
         } else if (isVariableStatement(node)) {
             const newSymbols = getBindingsFromVariableStatement(node);
             symbols = mergeSymbolMap(symbols, newSymbols);
         }
     });
+
+    return symbols;
+}
+
+export function getExportMap(file: SourceFile): ExportImportMap {
+    const symbols = getSymbolMap(file);
 
     return getExportMapFromSymbolMap(symbols);
 }
