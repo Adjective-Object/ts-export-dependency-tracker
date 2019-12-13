@@ -1,4 +1,4 @@
-import { getSymbolMap } from '../index';
+import { getSymbolMap } from '../internal';
 import * as ts from 'typescript';
 
 describe('getSymbolMap', () => {
