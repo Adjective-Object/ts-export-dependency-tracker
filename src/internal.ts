@@ -25,7 +25,12 @@ import {
     isPropertyAssignment,
     isNamespaceImport,
     isNamedImports,
+    isFunctionExpression,
+    isOmittedExpression,
+    isSpreadElement,
 } from 'typescript';
+import { walkNode, getNamesFromParameterDeclName } from './scope/walkScopes';
+import { LexicalScopeStack } from './scope/LexicalScopeStack';
 
 type ExportIdentifier = string;
 type ModuleSymbolIdentifier = string;
@@ -247,25 +252,32 @@ export function getBindingsFromExportDeclaration(
 }
 
 /**
- * Gets all identifiers reference inside a node.
+ * Gets all identifiers reference inside a node that are not shadowed
+ * within that same node.
  *
- * This should be redone to handle variable shadowing, etc.
  * @param node
  */
-export function getSymbolsReferencedInNode(
+export function getNonshadowedIdentifiersReferencedInNode(
     node: Node,
 ): Set<ModuleSymbolIdentifier> {
     if (isIdentifier(node)) {
         return new Set([node.text]);
     } else {
-        const mergedChildren = new Set<ModuleSymbolIdentifier>();
-        node.forEachChild(childNode => {
-            getSymbolsReferencedInNode(childNode).forEach(symbol =>
-                mergedChildren.add(symbol),
-            );
+        const referencedModuleScopeIdentifiers = new Set<string>();
+
+        walkNode(new LexicalScopeStack(), node, (currentNode, currentStack) => {
+            if (isIdentifier(currentNode)) {
+                const identifierName = currentNode.text;
+                const isShadowedVariable = currentStack.current.hasIdentifier(
+                    identifierName,
+                );
+                if (!isShadowedVariable) {
+                    referencedModuleScopeIdentifiers.add(identifierName);
+                }
+            }
         });
 
-        return mergedChildren;
+        return referencedModuleScopeIdentifiers;
     }
 }
 
@@ -276,7 +288,7 @@ export function getBindingsFromExportAssignment(
 
     symbols.moduleExportsToModuleSymbols.set(
         'default',
-        getSymbolsReferencedInNode(exportAssignment.expression),
+        getNonshadowedIdentifiersReferencedInNode(exportAssignment.expression),
     );
 
     return symbols;
@@ -286,7 +298,9 @@ function getBindingsFromFunctionDeclaration(
     fnDeclaration: FunctionDeclaration,
 ): PartialImportSymbolMap {
     const symbols = getEmptySymbolMap();
-    const referencedSymbols = getSymbolsReferencedInNode(fnDeclaration);
+    const referencedSymbols = getNonshadowedIdentifiersReferencedInNode(
+        fnDeclaration,
+    );
 
     const isExported = fnDeclaration.modifiers?.some(
         modifier => modifier.kind === SyntaxKind.ExportKeyword,
@@ -352,77 +366,86 @@ function getDeclaredSymbolDependencies(
                 boundName,
                 new Set(
                     declaration.initializer
-                        ? getSymbolsReferencedInNode(declaration.initializer)
+                        ? getNonshadowedIdentifiersReferencedInNode(
+                              declaration.initializer,
+                          )
                         : new Set(),
                 ),
             );
         } else if (isArrayBindingPattern(declaration.name)) {
             const bindingElements = declaration.name.elements;
             const initializer = declaration.initializer;
-            if (!initializer || !isArrayLiteralExpression(initializer)) {
+            if (!initializer) {
+                // abandon tracking when there is no initializer
+                return;
+            } else if (
+                !isArrayLiteralExpression(initializer) ||
+                initializer.elements.some(elem => isSpreadElement(elem))
+            ) {
+                // Bind all names in the array binding pattern to be dependent on
+                // all values in the initializer
+                for (let i = 0; i < bindingElements.length; i++) {
+                    const bindingElement = bindingElements[i];
+                    if (isOmittedExpression(bindingElement)) {
+                        continue;
+                    }
+                    const boundNames = getNamesFromParameterDeclName(
+                        bindingElement.name,
+                    );
+                    const dependencies = getNonshadowedIdentifiersReferencedInNode(
+                        initializer,
+                    );
+                    boundNames.forEach(boundName => {
+                        declaredSymbols.set(boundName, dependencies);
+                    });
+                }
                 return;
             }
+
+            // bind the specific names in the array if the initializer is an array
             for (let i = 0; i < bindingElements.length; i++) {
                 const initializingElement = initializer.elements[i];
+                const bindingElement = bindingElements[i];
+                if (isOmittedExpression(bindingElement)) {
+                    continue;
+                }
                 // If there are elements with no initialing expression but are still being declared,
                 // skip over them
-                const boundName = bindingElements[i].getText();
-                if (declaredSymbols.has(boundName)) {
-                    throw new Error(
-                        `duplicate symbol ${boundName} bound in variable declaration list`,
-                    );
-                }
-                declaredSymbols.set(
-                    boundName,
-                    new Set(
-                        initializingElement
-                            ? getSymbolsReferencedInNode(initializingElement)
-                            : new Set(),
-                    ),
+                const boundNames = getNamesFromParameterDeclName(
+                    bindingElement.name,
+                );
+                const dependencies = getNonshadowedIdentifiersReferencedInNode(
+                    initializingElement,
+                );
+                boundNames.forEach(boundName =>
+                    declaredSymbols.set(boundName, dependencies),
                 );
             }
         } else if (isObjectBindingPattern(declaration.name)) {
             const bindingElements = declaration.name.elements;
-            for (let bindingElement of bindingElements) {
-                const initializer = declaration.initializer;
-                if (!initializer || !isObjectLiteralExpression(initializer)) {
-                    continue;
-                }
-                const matchingProps = initializer.properties.filter(
-                    prop =>
-                        prop.name &&
-                        prop.name.getText() ===
-                            (
-                                bindingElement.propertyName ||
-                                bindingElement.name
-                            ).getText(),
-                );
-                if (matchingProps.length !== 1) {
-                    continue;
-                }
-                const matchingProp = matchingProps[0];
-                if (
-                    // This should be a redundant cast because we're inside an object
-                    isPropertyAssignment(matchingProp)
-                ) {
-                    const boundName = bindingElement.getText();
-                    if (declaredSymbols.has(boundName)) {
-                        throw new Error(
-                            `duplicate symbol ${boundName} bound in variable declaration list`,
-                        );
-                    }
-                    declaredSymbols.set(
-                        boundName,
-                        new Set(
-                            matchingProp.initializer
-                                ? getSymbolsReferencedInNode(
-                                      matchingProp.initializer,
-                                  )
-                                : new Set(),
-                        ),
-                    );
-                }
+            const initializer = declaration.initializer;
+            if (!initializer) {
+                // abandon tracking when there is no initializer
+                return;
             }
+
+            for (let i = 0; i < bindingElements.length; i++) {
+                const bindingElement = bindingElements[i];
+                if (isOmittedExpression(bindingElement)) {
+                    continue;
+                }
+                const boundNames = getNamesFromParameterDeclName(
+                    bindingElement.name,
+                );
+                const dependencies = getNonshadowedIdentifiersReferencedInNode(
+                    initializer,
+                );
+                boundNames.forEach(boundName => {
+                    declaredSymbols.set(boundName, dependencies);
+                });
+            }
+            // TODO handle binding specific names in objects
+            return;
         } else {
             throw new Error(`Unknown declaration of kind ${declaration.kind}`);
         }
@@ -443,11 +466,11 @@ function getBindingsFromVariableStatement(
         ? symbols.moduleExportsToModuleSymbols
         : symbols.moduleSymbolsToOtherModuleSymbols;
 
-    const declaedDependencies = getDeclaredSymbolDependencies(
+    const declaredDependencies = getDeclaredSymbolDependencies(
         variableStatement.declarationList,
     );
 
-    for (let [identifier, dependencies] of declaedDependencies.entries()) {
+    for (let [identifier, dependencies] of declaredDependencies.entries()) {
         if (targetMap.has(identifier)) {
             throw new Error(
                 `duplicate identifiers in target map: ${identifier}`,
