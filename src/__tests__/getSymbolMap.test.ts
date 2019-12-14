@@ -856,39 +856,39 @@ describe('getSymbolMap', () => {
 
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
-                      Object {
-                        "importModuleIdentifiers": Set {
-                          "./bar",
-                          "./foo",
-                          "./baz",
-                        },
-                        "moduleExportsToDirectImports": Map {},
-                        "moduleExportsToModuleSymbols": Map {
-                          "default" => Set {
-                            "a",
-                          },
-                        },
-                        "moduleSymbolsToImports": Map {
-                          "bar" => Set {
-                            "./bar",
-                          },
-                          "foo" => Set {
-                            "./foo",
-                          },
-                          "baz" => Set {
-                            "./baz",
-                          },
-                        },
-                        "moduleSymbolsToOtherModuleSymbols": Map {
-                          "a" => Set {
-                            "baz",
-                          },
-                          "b" => Set {
-                            "baz",
-                          },
-                        },
-                      }
-              `);
+            Object {
+              "importModuleIdentifiers": Set {
+                "./bar",
+                "./foo",
+                "./baz",
+              },
+              "moduleExportsToDirectImports": Map {},
+              "moduleExportsToModuleSymbols": Map {
+                "default" => Set {
+                  "a",
+                },
+              },
+              "moduleSymbolsToImports": Map {
+                "bar" => Set {
+                  "./bar",
+                },
+                "foo" => Set {
+                  "./foo",
+                },
+                "baz" => Set {
+                  "./baz",
+                },
+              },
+              "moduleSymbolsToOtherModuleSymbols": Map {
+                "a" => Set {
+                  "baz",
+                },
+                "b" => Set {
+                  "baz",
+                },
+              },
+            }
+        `);
     });
 
     it('tracks indirect references, accounting for nested object and array binding patterns', () => {
