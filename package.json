@@ -1,6 +1,6 @@
 {
   "name": "ts-export-dependency-tracker",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Max Huang-Hobbs <mhuan13@gmail.com>",
   "license": "MIT",
   "main": "dist/index.js",
