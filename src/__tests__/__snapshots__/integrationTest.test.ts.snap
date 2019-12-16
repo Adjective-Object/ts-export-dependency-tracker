@@ -1574,8 +1574,6 @@ Object {
       "decoratorTarget",
       "decoratorArgs",
       "asObservableObject",
-      "get",
-      "set",
       "context",
     },
     "computed" => Set {
@@ -1737,8 +1735,8 @@ Object {
   "moduleExportsToModuleSymbols": Map {
     "configure" => Set {
       "isolateGlobalState",
-      "enforceActions",
       "undefined",
+      "enforceActions",
       "deprecated",
       "fail",
       "globalState",
@@ -1748,8 +1746,8 @@ Object {
       "computedConfigurable",
       "disableErrorBoundaries",
       "console",
-      "reactionScheduler",
       "setReactionScheduler",
+      "reactionScheduler",
     },
   },
   "moduleSymbolsToImports": Map {
@@ -1772,8 +1770,8 @@ Object {
   "moduleSymbolsToOtherModuleSymbols": Map {
     "configure" => Set {
       "isolateGlobalState",
-      "enforceActions",
       "undefined",
+      "enforceActions",
       "deprecated",
       "fail",
       "globalState",
@@ -1783,8 +1781,8 @@ Object {
       "computedConfigurable",
       "disableErrorBoundaries",
       "console",
-      "reactionScheduler",
       "setReactionScheduler",
+      "reactionScheduler",
     },
   },
 }
