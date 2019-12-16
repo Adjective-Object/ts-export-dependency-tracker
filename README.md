@@ -36,23 +36,6 @@ The parser gives a best-effort guess based on tracking the imports, exports, and
 
 This is sufficient for simple analysis, but if you're analyzing more complicated export scenarios, you should be aware of the following issues:
 
--   Shadowed variables are not taken into account when accounting for the referenced identifiers of an expression.
-
-    ```ts
-    // identifier x will reference identifiers a and b
-    const x = a + b;
-    // identifier y will reference identifier a,
-    // even though the `a` in the function is a different variable
-    // that shadows the name `a`
-    const y = function() {
-        const a = 1;
-        return a;
-    };
-    // identifier z will reference identifiers a and b,
-    // even though the `b` in the expression is a property access
-    const z = a.b;
-    ```
-
 -   The following import/export forms are currently not handled during parsing
     -   `module.exports = ...`
     -   `import module = ...`
