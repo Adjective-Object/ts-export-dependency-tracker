@@ -23,16 +23,23 @@ export const getNamesFromParameterDeclName = (
             .reduce((a, b) => a.concat(b), []);
     } else if (ts.isArrayBindingPattern(parameterDeclName)) {
         return parameterDeclName.elements
-            .map((element: ts.ArrayBindingElement) =>
-                getNamesFromParameterDeclName(
-                    (element as ts.BindingElement).name,
-                ),
+            .filter(
+                (element): element is ts.BindingElement =>
+                    !ts.isOmittedExpression(element),
             )
+            .map(element => getNamesFromParameterDeclName(element.name))
             .reduce((a, b) => a.concat(b), []);
     } else {
         throw new Error('unexpected binding pattern in parameter list');
     }
 };
+
+const getNamesFromTypeParameters = (
+    typeParameters: ts.NodeArray<ts.TypeParameterDeclaration> | undefined,
+): string[] =>
+    (typeParameters ? Array.from(typeParameters) : []).map(
+        param => param.name.text,
+    );
 
 /**
  * If this node binds a new scope, returns the names that should be bound at the beginning
@@ -50,7 +57,10 @@ function getScopeChild(node: ts.Node): ScopeStartInfo | undefined {
                 .map(parameterDecl =>
                     getNamesFromParameterDeclName(parameterDecl.name),
                 )
-                .reduce((a, b) => a.concat(b), []),
+                .reduce(
+                    (a, b) => a.concat(b),
+                    getNamesFromTypeParameters(node.typeParameters),
+                ),
             traversePoint: node.body,
         };
     } else if (ts.isFunctionExpression(node)) {
@@ -115,44 +125,21 @@ function getBoundNamesInVariableDeclarationList(
     const boundNames: string[] = [];
 
     node.declarations.forEach((declaration: ts.VariableDeclaration) => {
-        if (ts.isArrayBindingPattern(declaration.name)) {
-            const bindingElements = declaration.name.elements;
-            const initializer = declaration.initializer;
-            if (!initializer || !ts.isArrayLiteralExpression(initializer)) {
-                return;
-            }
-            for (let i = 0; i < bindingElements.length; i++) {
-                const initializingElement = initializer.elements[i];
-                // If there are elements with no initialing expression but are still being declared,
-                // skip over them
-                if (initializingElement == null) continue;
-                boundNames.push(bindingElements[i].getText());
-            }
-        } else if (ts.isObjectBindingPattern(declaration.name)) {
-            const bindingElements = declaration.name.elements;
-            for (let bindingElement of bindingElements) {
-                const initializer = declaration.initializer;
+        if (
+            ts.isArrayBindingPattern(declaration.name) ||
+            ts.isObjectBindingPattern(declaration.name)
+        ) {
+            for (let bindingPattern of declaration.name.elements) {
                 if (
-                    !initializer ||
-                    !ts.isObjectLiteralExpression(initializer)
+                    !ts.isOmittedExpression(bindingPattern) &&
+                    bindingPattern.name !== undefined
                 ) {
-                    continue;
-                }
-                const matchingProps = initializer.properties.filter(
-                    prop =>
-                        prop.name &&
-                        prop.name.getText() ===
-                            (
-                                bindingElement.propertyName ||
-                                bindingElement.name
-                            ).getText(),
-                );
-                if (matchingProps.length !== 1) {
-                    continue;
-                }
-                const matchingProp = matchingProps[0];
-                if (ts.isPropertyAssignment(matchingProp)) {
-                    boundNames.push(bindingElement.name.getText());
+                    const subNames = getNamesFromParameterDeclName(
+                        bindingPattern.name,
+                    );
+                    for (let subName of subNames) {
+                        boundNames.push(subName);
+                    }
                 }
             }
         } else if (ts.isIdentifier(declaration.name)) {
@@ -193,6 +180,13 @@ export function walkNode(
         boundNames.forEach(boundName =>
             stack.current.declareIdentifier(boundName),
         );
+
+        // Walk initializing expressions
+        for (let declNode of node.declarations) {
+            if (declNode.initializer) {
+                walkNode(stack, declNode.initializer, eachNodeCb);
+            }
+        }
     } else if (ts.isPropertyAccessExpression(node)) {
         // only walk the expression part of propertyAccessExpressions, since
         // property access cannot reference anything in the parent scope.
