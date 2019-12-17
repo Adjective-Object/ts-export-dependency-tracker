@@ -39,4 +39,5 @@ This is sufficient for simple analysis, but if you're analyzing more complicated
 -   The following import/export forms are currently not handled during parsing
     -   `module.exports = ...`
     -   `import module = ...`
-    -   `require(...)`
+-   Ambient requires are not currently handled
+    (e.g. an import that has effects but is not explicitly referenced by any importers will be considered not referenced by any exported symbols)

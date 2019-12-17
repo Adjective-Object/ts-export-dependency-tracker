@@ -154,4 +154,162 @@ describe('getExportMap', () => {
             }
         `);
     });
+
+    describe('require() tracking', () => {
+        it('tracks const named exports that depend directly on requires', () => {
+            const sourceFile = ts.createSourceFile(
+                'example.ts',
+                `
+                export const foo = require('./bar')
+                `,
+                ts.ScriptTarget.ES2015,
+            );
+
+            const result = getExportMap(sourceFile);
+            expect(result).toMatchInlineSnapshot(`
+                Map {
+                  "foo" => Set {
+                    "./bar",
+                  },
+                }
+            `);
+        });
+        it('tracks default exports that depend directly on requires', () => {
+            const sourceFile = ts.createSourceFile(
+                'example.ts',
+                `
+                export default foo = require('./bar')
+                `,
+                ts.ScriptTarget.ES2015,
+            );
+
+            const result = getExportMap(sourceFile);
+            expect(result).toMatchInlineSnapshot(`
+                Map {
+                  "default" => Set {
+                    "./bar",
+                  },
+                }
+            `);
+        });
+        it('tracks exports that depend indirectly via a require in a lambda function body', () => {
+            const sourceFile = ts.createSourceFile(
+                'example.ts',
+                `
+                const internalFunction = () => {
+                  return require('./bar')
+                }
+                export default foo = internalFunction()
+                `,
+                ts.ScriptTarget.ES2015,
+            );
+
+            const result = getExportMap(sourceFile);
+            expect(result).toMatchInlineSnapshot(`
+                Map {
+                  "default" => Set {
+                    "./bar",
+                  },
+                }
+            `);
+        });
+
+        it('tracks exports that depend indirectly via a require in a non-lambda function expression body', () => {
+            const sourceFile = ts.createSourceFile(
+                'example.ts',
+                `
+                const internalFunction = function() {
+                  return require('./bar')
+                }
+                export default foo = internalFunction()
+                `,
+                ts.ScriptTarget.ES2015,
+            );
+
+            const result = getExportMap(sourceFile);
+            expect(result).toMatchInlineSnapshot(`
+                Map {
+                  "default" => Set {
+                    "./bar",
+                  },
+                }
+            `);
+        });
+
+        it('tracks exports that depend indirectly via a require in a function declaration', () => {
+            const sourceFile = ts.createSourceFile(
+                'example.ts',
+                `
+                function internalFunction() {
+                  return require('./bar')
+                }
+                export default foo = internalFunction()
+                `,
+                ts.ScriptTarget.ES2015,
+            );
+
+            const result = getExportMap(sourceFile);
+            expect(result).toMatchInlineSnapshot(`
+              Map {
+                "default" => Set {
+                  "./bar",
+                },
+              }
+            `);
+        });
+
+        it('tracks exports that depend indirectly via a require in a non-forward-declared function declaration', () => {
+            const sourceFile = ts.createSourceFile(
+                'example.ts',
+                `
+                export default foo = internalFunction()
+
+                function internalFunction() {
+                  return require('./bar')
+                }
+                `,
+                ts.ScriptTarget.ES2015,
+            );
+
+            const result = getExportMap(sourceFile);
+            expect(result).toMatchInlineSnapshot(`
+              Map {
+                "default" => Set {
+                  "./bar",
+                },
+              }
+            `);
+        });
+
+        it('tracks exports that depend indirectly via a constant in the module', () => {
+            const sourceFile = ts.createSourceFile(
+                'example.ts',
+                `
+                import { observer } from 'mobx-react';
+                import { patchStylesForTheme } from 'styles-patcher';
+                const styles = require('./styles.scss')
+
+                const patchedStyles = patchStylesForTheme(styles)
+
+                function MyComponentInner(props: any) {
+                  return <div styles={patchedStyles.Container}>Thing</div>
+                }
+
+                export const MyComponent = observer(MyComponentInner)
+                `,
+                ts.ScriptTarget.ES2015,
+            );
+
+            const result = getExportMap(sourceFile);
+            expect(result).toMatchInlineSnapshot(`
+              Map {
+                "MyComponent" => Set {
+                  "mobx-react",
+                  "styles-patcher",
+                  "./styles.scss",
+                },
+              }
+            `);
+        });
+    });
 });

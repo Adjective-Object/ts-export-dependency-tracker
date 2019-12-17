@@ -20,14 +20,12 @@ import {
     VariableDeclaration,
     isArrayBindingPattern,
     isArrayLiteralExpression,
-    isObjectLiteralExpression,
     isObjectBindingPattern,
-    isPropertyAssignment,
     isNamespaceImport,
     isNamedImports,
-    isFunctionExpression,
     isOmittedExpression,
     isSpreadElement,
+    isCallExpression,
 } from 'typescript';
 import { walkNode, getNamesFromParameterDeclName } from './scope/walkScopes';
 import { LexicalScopeStack } from './scope/LexicalScopeStack';
@@ -39,7 +37,6 @@ type ImportModuleIdentifier = string;
 type ExportImportMap = Map<ExportIdentifier, Set<ImportModuleIdentifier>>;
 
 interface PartialImportSymbolMap {
-    importModuleIdentifiers: Set<ImportModuleIdentifier>;
     moduleSymbolsToOtherModuleSymbols: Map<
         ModuleSymbolIdentifier,
         Set<ModuleSymbolIdentifier>
@@ -52,11 +49,13 @@ interface PartialImportSymbolMap {
         ExportIdentifier,
         Set<ModuleSymbolIdentifier>
     >;
-    moduleExportsToDirectImports: Map<ExportIdentifier, ImportModuleIdentifier>;
+    moduleExportsToDirectImports: Map<
+        ExportIdentifier,
+        Set<ImportModuleIdentifier>
+    >;
 }
 
 const getEmptySymbolMap = (): PartialImportSymbolMap => ({
-    importModuleIdentifiers: new Set(),
     moduleSymbolsToOtherModuleSymbols: new Map(),
     moduleSymbolsToImports: new Map(),
     moduleExportsToModuleSymbols: new Map(),
@@ -87,10 +86,6 @@ const mergeSymbolMap = (
     m1: PartialImportSymbolMap,
     m2: PartialImportSymbolMap,
 ): PartialImportSymbolMap => ({
-    importModuleIdentifiers: new Set([
-        ...m1.importModuleIdentifiers,
-        ...m2.importModuleIdentifiers,
-    ]),
     moduleSymbolsToOtherModuleSymbols: mergeMapOfSets(
         m1.moduleSymbolsToOtherModuleSymbols,
         m2.moduleSymbolsToOtherModuleSymbols,
@@ -124,7 +119,6 @@ function getBindingsFromImportDeclaration(
         );
     }
     const moduleSpecifier = importDeclarationNode.moduleSpecifier.text;
-    symbols.importModuleIdentifiers.add(moduleSpecifier);
 
     if (importDeclarationNode.importClause?.name) {
         // this is a default import
@@ -187,7 +181,6 @@ export function getBindingsFromExportDeclaration(
         }
 
         moduleSpecifier = exportDeclarationNode.moduleSpecifier.text;
-        symbols.importModuleIdentifiers.add(moduleSpecifier);
     }
 
     if (exportDeclarationNode.name) {
@@ -195,7 +188,7 @@ export function getBindingsFromExportDeclaration(
         if (moduleSpecifier) {
             symbols.moduleExportsToDirectImports.set(
                 exportDeclarationNode.name.text,
-                moduleSpecifier,
+                new Set([moduleSpecifier]),
             );
         } else {
             // if the export is a name and there is no module specifier, this is illegal.
@@ -218,7 +211,7 @@ export function getBindingsFromExportDeclaration(
             if (moduleSpecifier) {
                 symbols.moduleExportsToDirectImports.set(
                     specifier.name.text,
-                    moduleSpecifier,
+                    new Set([moduleSpecifier]),
                 );
             } else {
                 // Renamed export depends on the export
@@ -281,6 +274,34 @@ export function getNonshadowedIdentifiersReferencedInNode(
     }
 }
 
+/**
+ * Finds all modules that are `require()`'d in a node, writing the output to `out`
+ */
+function getRequiresInNode(node: Node, out: Set<string>) {
+    if (
+        isCallExpression(node) &&
+        isIdentifier(node.expression) &&
+        node.expression.text === 'require' &&
+        node.arguments.length == 1
+    ) {
+        const moduleSpecifierString = node.arguments[0];
+        if (isStringLiteral(moduleSpecifierString)) {
+            out.add(moduleSpecifierString.text);
+        }
+    } else {
+        node.forEachChild(child => getRequiresInNode(child, out));
+    }
+}
+
+/**
+ * Finds all modules that are `require()`'d in a node, writing the output to `out`
+ */
+function getRequiresInExpression(expression: Node) {
+    const out = new Set<string>();
+    getRequiresInNode(expression, out);
+    return out;
+}
+
 export function getBindingsFromExportAssignment(
     exportAssignment: ExportAssignment,
 ): PartialImportSymbolMap {
@@ -289,6 +310,11 @@ export function getBindingsFromExportAssignment(
     symbols.moduleExportsToModuleSymbols.set(
         'default',
         getNonshadowedIdentifiersReferencedInNode(exportAssignment.expression),
+    );
+
+    symbols.moduleExportsToDirectImports.set(
+        'default',
+        getRequiresInExpression(exportAssignment.expression),
     );
 
     return symbols;
@@ -309,16 +335,23 @@ function getBindingsFromFunctionDeclaration(
         modifier => modifier.kind === SyntaxKind.DefaultKeyword,
     );
 
+    const requiredPaths = getRequiresInExpression(fnDeclaration);
+
     if (isExported) {
         if (isDefault) {
             symbols.moduleExportsToModuleSymbols.set(
                 'default',
                 referencedSymbols,
             );
+            symbols.moduleExportsToDirectImports.set('default', requiredPaths);
         } else if (fnDeclaration.name) {
             symbols.moduleExportsToModuleSymbols.set(
                 fnDeclaration.name.text,
                 referencedSymbols,
+            );
+            symbols.moduleExportsToDirectImports.set(
+                fnDeclaration.name.text,
+                requiredPaths,
             );
         } else {
             throw new Error(
@@ -336,6 +369,10 @@ function getBindingsFromFunctionDeclaration(
             fnDeclaration.name.text,
             referencedSymbols,
         );
+        symbols.moduleSymbolsToImports.set(
+            fnDeclaration.name.text,
+            requiredPaths,
+        );
     }
 
     return symbols;
@@ -346,10 +383,18 @@ function getBindingsFromFunctionDeclaration(
  */
 function getDeclaredSymbolDependencies(
     node: VariableDeclarationList,
-): Map<ModuleSymbolIdentifier, Set<ModuleSymbolIdentifier>> {
+): [
+    Map<ModuleSymbolIdentifier, Set<ModuleSymbolIdentifier>>,
+    Map<ModuleSymbolIdentifier, Set<ImportModuleIdentifier>>,
+] {
     const declaredSymbols: Map<
         ModuleSymbolIdentifier,
         Set<ModuleSymbolIdentifier>
+    > = new Map();
+
+    const declaredImports: Map<
+        ModuleSymbolIdentifier,
+        Set<ImportModuleIdentifier>
     > = new Map();
 
     node.declarations.forEach((declaration: VariableDeclaration) => {
@@ -371,6 +416,12 @@ function getDeclaredSymbolDependencies(
                           )
                         : new Set(),
                 ),
+            );
+            declaredImports.set(
+                boundName,
+                declaration.initializer
+                    ? getRequiresInExpression(declaration.initializer)
+                    : new Set(),
             );
         } else if (isArrayBindingPattern(declaration.name)) {
             const bindingElements = declaration.name.elements;
@@ -397,6 +448,10 @@ function getDeclaredSymbolDependencies(
                     );
                     boundNames.forEach(boundName => {
                         declaredSymbols.set(boundName, dependencies);
+                        declaredImports.set(
+                            boundName,
+                            getRequiresInExpression(initializer),
+                        );
                     });
                 }
                 return;
@@ -417,9 +472,13 @@ function getDeclaredSymbolDependencies(
                 const dependencies = getNonshadowedIdentifiersReferencedInNode(
                     initializingElement,
                 );
-                boundNames.forEach(boundName =>
-                    declaredSymbols.set(boundName, dependencies),
-                );
+                boundNames.forEach(boundName => {
+                    declaredSymbols.set(boundName, dependencies);
+                    declaredImports.set(
+                        boundName,
+                        getRequiresInExpression(initializer),
+                    );
+                });
             }
         } else if (isObjectBindingPattern(declaration.name)) {
             const bindingElements = declaration.name.elements;
@@ -442,6 +501,10 @@ function getDeclaredSymbolDependencies(
                 );
                 boundNames.forEach(boundName => {
                     declaredSymbols.set(boundName, dependencies);
+                    declaredImports.set(
+                        boundName,
+                        getRequiresInExpression(initializer),
+                    );
                 });
             }
             // TODO handle binding specific names in objects
@@ -451,7 +514,7 @@ function getDeclaredSymbolDependencies(
         }
     });
 
-    return declaredSymbols;
+    return [declaredSymbols, declaredImports];
 }
 
 function getBindingsFromVariableStatement(
@@ -462,22 +525,39 @@ function getBindingsFromVariableStatement(
     const isExported = variableStatement.modifiers?.some(
         modifier => modifier.kind === SyntaxKind.ExportKeyword,
     );
-    const targetMap = isExported
+    const targetMapForModuleSymbols = isExported
         ? symbols.moduleExportsToModuleSymbols
         : symbols.moduleSymbolsToOtherModuleSymbols;
+    const targetMapForFoundRequires = isExported
+        ? symbols.moduleExportsToDirectImports
+        : symbols.moduleSymbolsToImports;
 
-    const declaredDependencies = getDeclaredSymbolDependencies(
-        variableStatement.declarationList,
-    );
+    const [
+        declaredSymbolDependencies,
+        declaredRequires,
+    ] = getDeclaredSymbolDependencies(variableStatement.declarationList);
 
-    for (let [identifier, dependencies] of declaredDependencies.entries()) {
-        if (targetMap.has(identifier)) {
+    for (let [
+        identifier,
+        dependencies,
+    ] of declaredSymbolDependencies.entries()) {
+        if (targetMapForModuleSymbols.has(identifier)) {
             throw new Error(
                 `duplicate identifiers in target map: ${identifier}`,
             );
         }
 
-        targetMap.set(identifier, dependencies);
+        targetMapForModuleSymbols.set(identifier, dependencies);
+    }
+
+    for (let [identifier, requires] of declaredRequires.entries()) {
+        if (targetMapForFoundRequires.has(identifier)) {
+            throw new Error(
+                `duplicate identifiers in target map: ${identifier}`,
+            );
+        }
+
+        targetMapForFoundRequires.set(identifier, requires);
     }
 
     return symbols;
@@ -528,7 +608,7 @@ function getExportMapFromSymbolMap(
         exportName,
         importName,
     ] of symbols.moduleExportsToDirectImports.entries()) {
-        exportToImportedModuleMapping.set(exportName, new Set([importName]));
+        exportToImportedModuleMapping.set(exportName, new Set(importName));
     }
 
     // build reverse symbol maps

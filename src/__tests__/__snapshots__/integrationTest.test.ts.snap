@@ -2,7 +2,7 @@
 
 exports[`getExportMap snapshots __tests__\\test-data\\example-src\\action.ts 1`] = `
 Map {
-  "_endAction" => Set {
+  "createAction" => Set {
     "../internal",
     "./derivation",
   },
@@ -10,9 +10,16 @@ Map {
     "../internal",
     "./derivation",
   },
-  "createAction" => Set {
+  "_startAction" => Set {
     "../internal",
     "./derivation",
+  },
+  "_endAction" => Set {
+    "../internal",
+    "./derivation",
+  },
+  "allowStateChanges" => Set {
+    "../internal",
   },
   "allowStateChangesStart" => Set {
     "../internal",
@@ -23,22 +30,15 @@ Map {
   "allowStateChangesInsideComputed" => Set {
     "../internal",
   },
-  "allowStateChanges" => Set {
-    "../internal",
-  },
-  "_startAction" => Set {
-    "../internal",
-    "./derivation",
-  },
 }
 `;
 
 exports[`getExportMap snapshots __tests__\\test-data\\example-src\\actiondecorator.ts 1`] = `
 Map {
-  "actionFieldDecorator" => Set {
+  "namedActionDecorator" => Set {
     "../internal",
   },
-  "namedActionDecorator" => Set {
+  "actionFieldDecorator" => Set {
     "../internal",
   },
   "boundActionDecorator" => Set {
@@ -49,6 +49,7 @@ Map {
 
 exports[`getExportMap snapshots __tests__\\test-data\\example-src\\atom.ts 1`] = `
 Map {
+  "$mobx" => Set {},
   "isAtom" => Set {
     "../internal",
   },
@@ -90,10 +91,10 @@ Map {
 
 exports[`getExportMap snapshots __tests__\\test-data\\example-src\\computed.ts 1`] = `
 Map {
-  "computed" => Set {
+  "computedDecorator" => Set {
     "../internal",
   },
-  "computedDecorator" => Set {
+  "computed" => Set {
     "../internal",
   },
 }
@@ -125,30 +126,40 @@ Map {
 
 exports[`getExportMap snapshots __tests__\\test-data\\example-src\\decorators.ts 1`] = `
 Map {
-  "createPropDecorator" => Set {
-    "../internal",
-  },
+  "mobxDidRunLazyInitializersSymbol" => Set {},
+  "mobxPendingDecorators" => Set {},
   "initializeInstance" => Set {
     "../internal",
   },
+  "createPropDecorator" => Set {
+    "../internal",
+  },
+  "quacksLikeADecorator" => Set {},
 }
 `;
 
 exports[`getExportMap snapshots __tests__\\test-data\\example-src\\derivation.ts 1`] = `
 Map {
-  "trackDerivedFunction" => Set {
-    "../internal",
-  },
-  "checkIfStateModificationsAreAllowed" => Set {
-    "../internal",
-  },
+  "isCaughtException" => Set {},
   "shouldCompute" => Set {
     "../internal",
   },
   "isComputingDerivation" => Set {
     "../internal",
   },
+  "checkIfStateModificationsAreAllowed" => Set {
+    "../internal",
+  },
   "checkIfStateReadsAreAllowed" => Set {
+    "../internal",
+  },
+  "trackDerivedFunction" => Set {
+    "../internal",
+  },
+  "clearObserving" => Set {
+    "../internal",
+  },
+  "untracked" => Set {
     "../internal",
   },
   "untrackedStart" => Set {
@@ -163,12 +174,7 @@ Map {
   "allowStateReadsEnd" => Set {
     "../internal",
   },
-  "untracked" => Set {
-    "../internal",
-  },
-  "clearObserving" => Set {
-    "../internal",
-  },
+  "changeDependenciesStateTo0" => Set {},
 }
 `;
 
@@ -194,12 +200,12 @@ Map {
     "../internal",
     "../utils/utils",
   },
+  "getDefaultDecoratorFromObjectOptions" => Set {
+    "../internal",
+  },
   "extendObservableObjectWithProperties" => Set {
     "../internal",
     "../utils/utils",
-  },
-  "getDefaultDecoratorFromObjectOptions" => Set {
-    "../internal",
   },
 }
 `;
@@ -217,6 +223,8 @@ Map {
 
 exports[`getExportMap snapshots __tests__\\test-data\\example-src\\flow.ts 1`] = `
 Map {
+  "FlowCancellationError" => Set {},
+  "isFlowCancellationError" => Set {},
   "flow" => Set {
     "../internal",
   },
@@ -225,12 +233,15 @@ Map {
 
 exports[`getExportMap snapshots __tests__\\test-data\\example-src\\globalstate.ts 1`] = `
 Map {
+  "getGlobal" => Set {},
   "globalState" => Set {
     "../internal",
   },
   "isolateGlobalState" => Set {
     "../internal",
   },
+  "getGlobalState" => Set {},
+  "resetGlobalState" => Set {},
 }
 `;
 
@@ -252,10 +263,11 @@ Map {
 
 exports[`getExportMap snapshots __tests__\\test-data\\example-src\\intercept-utils.ts 1`] = `
 Map {
-  "interceptChange" => Set {
+  "hasInterceptors" => Set {},
+  "registerInterceptor" => Set {
     "../internal",
   },
-  "registerInterceptor" => Set {
+  "interceptChange" => Set {
     "../internal",
   },
 }
@@ -288,10 +300,15 @@ Map {
 }
 `;
 
-exports[`getExportMap snapshots __tests__\\test-data\\example-src\\iterable.ts 1`] = `Map {}`;
+exports[`getExportMap snapshots __tests__\\test-data\\example-src\\iterable.ts 1`] = `
+Map {
+  "makeIterable" => Set {},
+}
+`;
 
 exports[`getExportMap snapshots __tests__\\test-data\\example-src\\listen-utils.ts 1`] = `
 Map {
+  "hasListeners" => Set {},
   "registerListener" => Set {
     "../internal",
   },
@@ -632,13 +649,14 @@ Map {
 
 exports[`getExportMap snapshots __tests__\\test-data\\example-src\\modifiers.ts 1`] = `
 Map {
-  "refStructEnhancer" => Set {
+  "deepEnhancer" => Set {
     "../internal",
   },
   "shallowEnhancer" => Set {
     "../internal",
   },
-  "deepEnhancer" => Set {
+  "referenceEnhancer" => Set {},
+  "refStructEnhancer" => Set {
     "../internal",
   },
 }
@@ -649,16 +667,16 @@ Map {
   "keys" => Set {
     "../internal",
   },
-  "set" => Set {
-    "../internal",
-  },
-  "remove" => Set {
-    "../internal",
-  },
   "values" => Set {
     "../internal",
   },
   "entries" => Set {
+    "../internal",
+  },
+  "set" => Set {
+    "../internal",
+  },
+  "remove" => Set {
     "../internal",
   },
   "has" => Set {
@@ -672,16 +690,10 @@ Map {
 
 exports[`getExportMap snapshots __tests__\\test-data\\example-src\\observable.ts 1`] = `
 Map {
-  "endBatch" => Set {
-    "../internal",
-  },
-  "propagateChanged" => Set {
-    "../internal",
-  },
-  "propagateMaybeChanged" => Set {
-    "../internal",
-  },
-  "propagateChangeConfirmed" => Set {
+  "hasObservers" => Set {},
+  "getObservers" => Set {},
+  "addObserver" => Set {},
+  "removeObserver" => Set {
     "../internal",
   },
   "queueForUnobservation" => Set {
@@ -690,10 +702,19 @@ Map {
   "startBatch" => Set {
     "../internal",
   },
+  "endBatch" => Set {
+    "../internal",
+  },
   "reportObserved" => Set {
     "../internal",
   },
-  "removeObserver" => Set {
+  "propagateChanged" => Set {
+    "../internal",
+  },
+  "propagateChangeConfirmed" => Set {
+    "../internal",
+  },
+  "propagateMaybeChanged" => Set {
     "../internal",
   },
 }
@@ -734,10 +755,10 @@ Map {
   "generateObservablePropConfig" => Set {
     "../internal",
   },
-  "isObservableObject" => Set {
+  "generateComputedPropConfig" => Set {
     "../internal",
   },
-  "generateComputedPropConfig" => Set {
+  "isObservableObject" => Set {
     "../internal",
   },
 }
@@ -769,15 +790,16 @@ Map {
 
 exports[`getExportMap snapshots __tests__\\test-data\\example-src\\reaction.ts 1`] = `
 Map {
-  "isReaction" => Set {
-    "../internal",
-  },
   "onReactionError" => Set {
     "../internal",
   },
   "runReactions" => Set {
     "../internal",
   },
+  "isReaction" => Set {
+    "../internal",
+  },
+  "setReactionScheduler" => Set {},
 }
 `;
 
@@ -789,13 +811,13 @@ Map {
   "spyReport" => Set {
     "../internal",
   },
-  "spy" => Set {
-    "../internal",
-  },
   "spyReportStart" => Set {
     "../internal",
   },
   "spyReportEnd" => Set {
+    "../internal",
+  },
+  "spy" => Set {
     "../internal",
   },
 }
@@ -841,15 +863,37 @@ Map {
 
 exports[`getExportMap snapshots __tests__\\test-data\\example-src\\utils.ts 1`] = `
 Map {
-  "getMapLikeKeys" => Set {
-    "../internal",
-  },
+  "OBFUSCATED_ERROR" => Set {},
+  "EMPTY_ARRAY" => Set {},
+  "EMPTY_OBJECT" => Set {},
   "getNextId" => Set {
     "../internal",
   },
+  "fail" => Set {},
+  "invariant" => Set {},
+  "deprecated" => Set {},
+  "once" => Set {},
+  "noop" => Set {},
+  "unique" => Set {},
+  "isObject" => Set {},
+  "isPlainObject" => Set {},
+  "makeNonEnumerable" => Set {},
+  "addHiddenProp" => Set {},
+  "addHiddenFinalProp" => Set {},
+  "isPropertyConfigurable" => Set {},
+  "assertPropertyConfigurable" => Set {},
+  "createInstanceofPredicate" => Set {},
   "isArrayLike" => Set {
     "../internal",
   },
+  "isES6Map" => Set {},
+  "isES6Set" => Set {},
+  "getPlainObjectKeys" => Set {},
+  "stringifyKey" => Set {},
+  "getMapLikeKeys" => Set {
+    "../internal",
+  },
+  "toPrimitive" => Set {},
 }
 `;
 
@@ -863,11 +907,16 @@ Map {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\action.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
-    "./derivation",
+  "moduleExportsToDirectImports": Map {
+    "createAction" => Set {},
+    "executeAction" => Set {},
+    "_startAction" => Set {},
+    "_endAction" => Set {},
+    "allowStateChanges" => Set {},
+    "allowStateChangesStart" => Set {},
+    "allowStateChangesEnd" => Set {},
+    "allowStateChangesInsideComputed" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "createAction" => Set {
       "process",
@@ -986,6 +1035,16 @@ Object {
     "allowStateReadsEnd" => Set {
       "./derivation",
     },
+    "currentActionId" => Set {},
+    "nextActionId" => Set {},
+    "createAction" => Set {},
+    "executeAction" => Set {},
+    "_startAction" => Set {},
+    "_endAction" => Set {},
+    "allowStateChanges" => Set {},
+    "allowStateChangesStart" => Set {},
+    "allowStateChangesEnd" => Set {},
+    "allowStateChangesInsideComputed" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "currentActionId" => Set {},
@@ -1072,10 +1131,11 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\actiondecorator.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "namedActionDecorator" => Set {},
+    "actionFieldDecorator" => Set {},
+    "boundActionDecorator" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "namedActionDecorator" => Set {
       "process",
@@ -1138,6 +1198,10 @@ Object {
     "fail" => Set {
       "../internal",
     },
+    "dontReassignFields" => Set {},
+    "namedActionDecorator" => Set {},
+    "actionFieldDecorator" => Set {},
+    "boundActionDecorator" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "dontReassignFields" => Set {
@@ -1191,11 +1255,11 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\atom.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
-    "../utils/utils",
+  "moduleExportsToDirectImports": Map {
+    "$mobx" => Set {},
+    "isAtom" => Set {},
+    "createAtom" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "$mobx" => Set {
       "Symbol",
@@ -1254,6 +1318,7 @@ Object {
     "Lambda" => Set {
       "../utils/utils",
     },
+    "createAtom" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "createAtom" => Set {
@@ -1271,10 +1336,10 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\autorun.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "autorun" => Set {},
+    "reaction" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "autorun" => Set {
       "process",
@@ -1348,6 +1413,11 @@ Object {
     "isAction" => Set {
       "../internal",
     },
+    "autorun" => Set {},
+    "run" => Set {},
+    "createSchedulerFromOptions" => Set {},
+    "reaction" => Set {},
+    "wrapErrorHandler" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "autorun" => Set {
@@ -1408,10 +1478,10 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\become-observed.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "onBecomeObserved" => Set {},
+    "onBecomeUnobserved" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "onBecomeObserved" => Set {
       "onBecomeObserved",
@@ -1471,6 +1541,9 @@ Object {
     "ObservableSet" => Set {
       "../internal",
     },
+    "onBecomeObserved" => Set {},
+    "onBecomeUnobserved" => Set {},
+    "interceptHook" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "onBecomeObserved" => Set {
@@ -1522,10 +1595,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\comparer.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "comparer" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "comparer" => Set {
       "identity",
@@ -1542,6 +1614,10 @@ Object {
     "deepEqual" => Set {
       "../internal",
     },
+    "identityComparer" => Set {},
+    "structuralComparer" => Set {},
+    "shallowComparer" => Set {},
+    "defaultComparer" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "identityComparer" => Set {},
@@ -1560,10 +1636,10 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\computed.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "computedDecorator" => Set {},
+    "computed" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "computedDecorator" => Set {
       "createPropDecorator",
@@ -1607,6 +1683,7 @@ Object {
     "invariant" => Set {
       "../internal",
     },
+    "computedStructDecorator" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "computedStructDecorator" => Set {
@@ -1620,10 +1697,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\computedvalue.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "isComputedValue" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "isComputedValue" => Set {
       "createInstanceofPredicate",
@@ -1728,10 +1804,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\configure.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "configure" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "configure" => Set {
       "isolateGlobalState",
@@ -1766,6 +1841,7 @@ Object {
     "deprecated" => Set {
       "../internal",
     },
+    "configure" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "configure" => Set {
@@ -1790,10 +1866,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\decorate.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "decorate" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "decorate" => Set {
       "decorate",
@@ -1823,6 +1898,7 @@ Object {
     "isPlainObject" => Set {
       "../internal",
     },
+    "decorate" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "decorate" => Set {
@@ -1851,10 +1927,13 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\decorators.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "mobxDidRunLazyInitializersSymbol" => Set {},
+    "mobxPendingDecorators" => Set {},
+    "initializeInstance" => Set {},
+    "createPropDecorator" => Set {},
+    "quacksLikeADecorator" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "mobxDidRunLazyInitializersSymbol" => Set {
       "Symbol",
@@ -1904,6 +1983,12 @@ Object {
     "fail" => Set {
       "../internal",
     },
+    "enumerableDescriptorCache" => Set {},
+    "nonEnumerableDescriptorCache" => Set {},
+    "createPropertyInitializerDescriptor" => Set {},
+    "initializeInstance" => Set {},
+    "createPropDecorator" => Set {},
+    "quacksLikeADecorator" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "enumerableDescriptorCache" => Set {},
@@ -1955,10 +2040,21 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\derivation.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "isCaughtException" => Set {},
+    "shouldCompute" => Set {},
+    "isComputingDerivation" => Set {},
+    "checkIfStateModificationsAreAllowed" => Set {},
+    "checkIfStateReadsAreAllowed" => Set {},
+    "trackDerivedFunction" => Set {},
+    "clearObserving" => Set {},
+    "untracked" => Set {},
+    "untrackedStart" => Set {},
+    "untrackedEnd" => Set {},
+    "allowStateReadsStart" => Set {},
+    "allowStateReadsEnd" => Set {},
+    "changeDependenciesStateTo0" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "isCaughtException" => Set {
       "CaughtException",
@@ -2056,6 +2152,21 @@ Object {
     "removeObserver" => Set {
       "../internal",
     },
+    "isCaughtException" => Set {},
+    "shouldCompute" => Set {},
+    "isComputingDerivation" => Set {},
+    "checkIfStateModificationsAreAllowed" => Set {},
+    "checkIfStateReadsAreAllowed" => Set {},
+    "trackDerivedFunction" => Set {},
+    "warnAboutDerivationWithoutDependencies" => Set {},
+    "bindDependencies" => Set {},
+    "clearObserving" => Set {},
+    "untracked" => Set {},
+    "untrackedStart" => Set {},
+    "untrackedEnd" => Set {},
+    "allowStateReadsStart" => Set {},
+    "allowStateReadsEnd" => Set {},
+    "changeDependenciesStateTo0" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "isCaughtException" => Set {
@@ -2154,10 +2265,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\dynamicobject.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "createDynamicObservableObject" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "createDynamicObservableObject" => Set {
       "Proxy",
@@ -2187,6 +2297,10 @@ Object {
     "set" => Set {
       "../internal",
     },
+    "getAdm" => Set {},
+    "isPropertyKey" => Set {},
+    "objectProxyTraps" => Set {},
+    "createDynamicObservableObject" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "getAdm" => Set {
@@ -2227,10 +2341,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\eq.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "deepEqual" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "deepEqual" => Set {
       "eq",
@@ -2252,6 +2365,12 @@ Object {
     "isObservableSet" => Set {
       "../internal",
     },
+    "Symbol" => Set {},
+    "toString" => Set {},
+    "deepEqual" => Set {},
+    "eq" => Set {},
+    "unwrap" => Set {},
+    "has" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "Symbol" => Set {},
@@ -2294,12 +2413,11 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\extendobservable.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
-    "./observabledecorator",
-    "../utils/utils",
+  "moduleExportsToDirectImports": Map {
+    "extendObservable" => Set {},
+    "getDefaultDecoratorFromObjectOptions" => Set {},
+    "extendObservableObjectWithProperties" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "extendObservable" => Set {
       "process",
@@ -2393,6 +2511,9 @@ Object {
     "isPlainObject" => Set {
       "../utils/utils",
     },
+    "extendObservable" => Set {},
+    "getDefaultDecoratorFromObjectOptions" => Set {},
+    "extendObservableObjectWithProperties" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "extendObservable" => Set {
@@ -2437,10 +2558,10 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\extras.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "getDependencyTree" => Set {},
+    "getObserverTree" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "getDependencyTree" => Set {
       "nodeToDependencyTree",
@@ -2467,6 +2588,10 @@ Object {
     "unique" => Set {
       "../internal",
     },
+    "getDependencyTree" => Set {},
+    "nodeToDependencyTree" => Set {},
+    "getObserverTree" => Set {},
+    "nodeToObserverTree" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "getDependencyTree" => Set {
@@ -2495,10 +2620,11 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\flow.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "FlowCancellationError" => Set {},
+    "isFlowCancellationError" => Set {},
+    "flow" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "FlowCancellationError" => Set {},
     "isFlowCancellationError" => Set {
@@ -2546,6 +2672,11 @@ Object {
     "noop" => Set {
       "../internal",
     },
+    "generatorId" => Set {},
+    "FlowCancellationError" => Set {},
+    "isFlowCancellationError" => Set {},
+    "flow" => Set {},
+    "cancelPromise" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "generatorId" => Set {},
@@ -2591,10 +2722,13 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\globalstate.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "getGlobal" => Set {},
+    "globalState" => Set {},
+    "isolateGlobalState" => Set {},
+    "getGlobalState" => Set {},
+    "resetGlobalState" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "getGlobal" => Set {
       "window",
@@ -2643,6 +2777,16 @@ Object {
     "fail" => Set {
       "../internal",
     },
+    "persistentKeys" => Set {},
+    "window" => Set {},
+    "self" => Set {},
+    "mockGlobal" => Set {},
+    "getGlobal" => Set {},
+    "canMergeGlobalState" => Set {},
+    "isolateCalled" => Set {},
+    "isolateGlobalState" => Set {},
+    "getGlobalState" => Set {},
+    "resetGlobalState" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "persistentKeys" => Set {},
@@ -2681,10 +2825,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\intercept.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "intercept" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "intercept" => Set {
       "intercept",
@@ -2754,6 +2897,9 @@ Object {
     "ISetWillChange" => Set {
       "../internal",
     },
+    "intercept" => Set {},
+    "interceptInterceptable" => Set {},
+    "interceptProperty" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "intercept" => Set {
@@ -2795,10 +2941,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\intercept-read.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "interceptReads" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "interceptReads" => Set {
       "interceptReads",
@@ -2866,6 +3011,7 @@ Object {
     "ObservableSet" => Set {
       "../internal",
     },
+    "interceptReads" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "interceptReads" => Set {
@@ -2905,10 +3051,11 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\intercept-utils.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "hasInterceptors" => Set {},
+    "registerInterceptor" => Set {},
+    "interceptChange" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "hasInterceptors" => Set {
       "undefined",
@@ -2944,6 +3091,9 @@ Object {
     "untrackedStart" => Set {
       "../internal",
     },
+    "hasInterceptors" => Set {},
+    "registerInterceptor" => Set {},
+    "interceptChange" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "hasInterceptors" => Set {
@@ -2969,53 +3119,6 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\internal.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "./utils/utils",
-    "./core/atom",
-    "./utils/comparer",
-    "./utils/decorators",
-    "./types/modifiers",
-    "./api/observabledecorator",
-    "./api/observable",
-    "./api/computed",
-    "./core/action",
-    "./types/observablevalue",
-    "./core/computedvalue",
-    "./core/derivation",
-    "./core/globalstate",
-    "./core/observable",
-    "./core/reaction",
-    "./core/spy",
-    "./api/actiondecorator",
-    "./api/action",
-    "./api/autorun",
-    "./api/become-observed",
-    "./api/configure",
-    "./api/decorate",
-    "./api/extendobservable",
-    "./api/extras",
-    "./api/flow",
-    "./api/intercept-read",
-    "./api/intercept",
-    "./api/iscomputed",
-    "./api/isobservable",
-    "./api/object-api",
-    "./api/observe",
-    "./api/tojs",
-    "./api/trace",
-    "./api/transaction",
-    "./api/when",
-    "./types/dynamicobject",
-    "./types/intercept-utils",
-    "./types/listen-utils",
-    "./types/observablearray",
-    "./types/observablemap",
-    "./types/observableset",
-    "./types/observableobject",
-    "./types/type-utils",
-    "./utils/eq",
-    "./utils/iterable",
-  },
   "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {},
   "moduleSymbolsToImports": Map {},
@@ -3025,10 +3128,11 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\iscomputed.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "_isComputed" => Set {},
+    "isComputed" => Set {},
+    "isComputedProp" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "_isComputed" => Set {
       "undefined",
@@ -3067,6 +3171,9 @@ Object {
     "isObservableObject" => Set {
       "../internal",
     },
+    "_isComputed" => Set {},
+    "isComputed" => Set {},
+    "isComputedProp" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "_isComputed" => Set {
@@ -3095,10 +3202,10 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\isobservable.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "isObservable" => Set {},
+    "isObservableProp" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "isObservable" => Set {
       "arguments",
@@ -3140,6 +3247,9 @@ Object {
     "isReaction" => Set {
       "../internal",
     },
+    "_isObservable" => Set {},
+    "isObservable" => Set {},
+    "isObservableProp" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "_isObservable" => Set {
@@ -3174,15 +3284,19 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\iterable.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {},
-  "moduleExportsToDirectImports": Map {},
+  "moduleExportsToDirectImports": Map {
+    "makeIterable" => Set {},
+  },
   "moduleExportsToModuleSymbols": Map {
     "makeIterable" => Set {
       "Symbol",
       "getSelf",
     },
   },
-  "moduleSymbolsToImports": Map {},
+  "moduleSymbolsToImports": Map {
+    "makeIterable" => Set {},
+    "getSelf" => Set {},
+  },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "makeIterable" => Set {
       "Symbol",
@@ -3195,10 +3309,11 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\listen-utils.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "hasListeners" => Set {},
+    "registerListener" => Set {},
+    "notifyListeners" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "hasListeners" => Set {
       "undefined",
@@ -3228,6 +3343,9 @@ Object {
     "untrackedStart" => Set {
       "../internal",
     },
+    "hasListeners" => Set {},
+    "registerListener" => Set {},
+    "notifyListeners" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "hasListeners" => Set {
@@ -3250,118 +3368,331 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\mobx.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "./internal",
-  },
   "moduleExportsToDirectImports": Map {
-    "IObservable" => "./internal",
-    "IDepTreeNode" => "./internal",
-    "Reaction" => "./internal",
-    "IReactionPublic" => "./internal",
-    "IReactionDisposer" => "./internal",
-    "IDerivation" => "./internal",
-    "untracked" => "./internal",
-    "IDerivationState" => "./internal",
-    "IAtom" => "./internal",
-    "createAtom" => "./internal",
-    "IAction" => "./internal",
-    "spy" => "./internal",
-    "IComputedValue" => "./internal",
-    "IEqualsComparer" => "./internal",
-    "comparer" => "./internal",
-    "IEnhancer" => "./internal",
-    "IInterceptable" => "./internal",
-    "IInterceptor" => "./internal",
-    "IListenable" => "./internal",
-    "IObjectWillChange" => "./internal",
-    "IObjectDidChange" => "./internal",
-    "IObservableObject" => "./internal",
-    "isObservableObject" => "./internal",
-    "IValueDidChange" => "./internal",
-    "IValueWillChange" => "./internal",
-    "IObservableValue" => "./internal",
-    "isBoxedObservable" => "./internal",
-    "IObservableArray" => "./internal",
-    "IArrayWillChange" => "./internal",
-    "IArrayWillSplice" => "./internal",
-    "IArrayChange" => "./internal",
-    "IArraySplice" => "./internal",
-    "isObservableArray" => "./internal",
-    "IKeyValueMap" => "./internal",
-    "ObservableMap" => "./internal",
-    "IMapEntries" => "./internal",
-    "IMapEntry" => "./internal",
-    "IMapWillChange" => "./internal",
-    "IMapDidChange" => "./internal",
-    "isObservableMap" => "./internal",
-    "IObservableMapInitialValues" => "./internal",
-    "ObservableSet" => "./internal",
-    "isObservableSet" => "./internal",
-    "ISetDidChange" => "./internal",
-    "ISetWillChange" => "./internal",
-    "IObservableSetInitialValues" => "./internal",
-    "transaction" => "./internal",
-    "observable" => "./internal",
-    "IObservableFactory" => "./internal",
-    "IObservableFactories" => "./internal",
-    "computed" => "./internal",
-    "IComputed" => "./internal",
-    "isObservable" => "./internal",
-    "isObservableProp" => "./internal",
-    "isComputed" => "./internal",
-    "isComputedProp" => "./internal",
-    "extendObservable" => "./internal",
-    "observe" => "./internal",
-    "intercept" => "./internal",
-    "autorun" => "./internal",
-    "IAutorunOptions" => "./internal",
-    "reaction" => "./internal",
-    "IReactionOptions" => "./internal",
-    "when" => "./internal",
-    "IWhenOptions" => "./internal",
-    "action" => "./internal",
-    "isAction" => "./internal",
-    "runInAction" => "./internal",
-    "IActionFactory" => "./internal",
-    "keys" => "./internal",
-    "values" => "./internal",
-    "entries" => "./internal",
-    "set" => "./internal",
-    "remove" => "./internal",
-    "has" => "./internal",
-    "get" => "./internal",
-    "decorate" => "./internal",
-    "configure" => "./internal",
-    "onBecomeObserved" => "./internal",
-    "onBecomeUnobserved" => "./internal",
-    "flow" => "./internal",
-    "FlowCancellationError" => "./internal",
-    "isFlowCancellationError" => "./internal",
-    "toJS" => "./internal",
-    "trace" => "./internal",
-    "IObserverTree" => "./internal",
-    "IDependencyTree" => "./internal",
-    "getDependencyTree" => "./internal",
-    "getObserverTree" => "./internal",
-    "_resetGlobalState" => "./internal",
-    "_getGlobalState" => "./internal",
-    "getDebugName" => "./internal",
-    "getAtom" => "./internal",
-    "_getAdministration" => "./internal",
-    "_allowStateChanges" => "./internal",
-    "_allowStateChangesInsideComputed" => "./internal",
-    "Lambda" => "./internal",
-    "isArrayLike" => "./internal",
-    "$mobx" => "./internal",
-    "_isComputingDerivation" => "./internal",
-    "onReactionError" => "./internal",
-    "_interceptReads" => "./internal",
-    "IComputedValueOptions" => "./internal",
-    "IActionRunInfo" => "./internal",
-    "_startAction" => "./internal",
-    "_endAction" => "./internal",
-    "_allowStateReadsStart" => "./internal",
-    "_allowStateReadsEnd" => "./internal",
+    "IObservable" => Set {
+      "./internal",
+    },
+    "IDepTreeNode" => Set {
+      "./internal",
+    },
+    "Reaction" => Set {
+      "./internal",
+    },
+    "IReactionPublic" => Set {
+      "./internal",
+    },
+    "IReactionDisposer" => Set {
+      "./internal",
+    },
+    "IDerivation" => Set {
+      "./internal",
+    },
+    "untracked" => Set {
+      "./internal",
+    },
+    "IDerivationState" => Set {
+      "./internal",
+    },
+    "IAtom" => Set {
+      "./internal",
+    },
+    "createAtom" => Set {
+      "./internal",
+    },
+    "IAction" => Set {
+      "./internal",
+    },
+    "spy" => Set {
+      "./internal",
+    },
+    "IComputedValue" => Set {
+      "./internal",
+    },
+    "IEqualsComparer" => Set {
+      "./internal",
+    },
+    "comparer" => Set {
+      "./internal",
+    },
+    "IEnhancer" => Set {
+      "./internal",
+    },
+    "IInterceptable" => Set {
+      "./internal",
+    },
+    "IInterceptor" => Set {
+      "./internal",
+    },
+    "IListenable" => Set {
+      "./internal",
+    },
+    "IObjectWillChange" => Set {
+      "./internal",
+    },
+    "IObjectDidChange" => Set {
+      "./internal",
+    },
+    "IObservableObject" => Set {
+      "./internal",
+    },
+    "isObservableObject" => Set {
+      "./internal",
+    },
+    "IValueDidChange" => Set {
+      "./internal",
+    },
+    "IValueWillChange" => Set {
+      "./internal",
+    },
+    "IObservableValue" => Set {
+      "./internal",
+    },
+    "isBoxedObservable" => Set {
+      "./internal",
+    },
+    "IObservableArray" => Set {
+      "./internal",
+    },
+    "IArrayWillChange" => Set {
+      "./internal",
+    },
+    "IArrayWillSplice" => Set {
+      "./internal",
+    },
+    "IArrayChange" => Set {
+      "./internal",
+    },
+    "IArraySplice" => Set {
+      "./internal",
+    },
+    "isObservableArray" => Set {
+      "./internal",
+    },
+    "IKeyValueMap" => Set {
+      "./internal",
+    },
+    "ObservableMap" => Set {
+      "./internal",
+    },
+    "IMapEntries" => Set {
+      "./internal",
+    },
+    "IMapEntry" => Set {
+      "./internal",
+    },
+    "IMapWillChange" => Set {
+      "./internal",
+    },
+    "IMapDidChange" => Set {
+      "./internal",
+    },
+    "isObservableMap" => Set {
+      "./internal",
+    },
+    "IObservableMapInitialValues" => Set {
+      "./internal",
+    },
+    "ObservableSet" => Set {
+      "./internal",
+    },
+    "isObservableSet" => Set {
+      "./internal",
+    },
+    "ISetDidChange" => Set {
+      "./internal",
+    },
+    "ISetWillChange" => Set {
+      "./internal",
+    },
+    "IObservableSetInitialValues" => Set {
+      "./internal",
+    },
+    "transaction" => Set {
+      "./internal",
+    },
+    "observable" => Set {
+      "./internal",
+    },
+    "IObservableFactory" => Set {
+      "./internal",
+    },
+    "IObservableFactories" => Set {
+      "./internal",
+    },
+    "computed" => Set {
+      "./internal",
+    },
+    "IComputed" => Set {
+      "./internal",
+    },
+    "isObservable" => Set {
+      "./internal",
+    },
+    "isObservableProp" => Set {
+      "./internal",
+    },
+    "isComputed" => Set {
+      "./internal",
+    },
+    "isComputedProp" => Set {
+      "./internal",
+    },
+    "extendObservable" => Set {
+      "./internal",
+    },
+    "observe" => Set {
+      "./internal",
+    },
+    "intercept" => Set {
+      "./internal",
+    },
+    "autorun" => Set {
+      "./internal",
+    },
+    "IAutorunOptions" => Set {
+      "./internal",
+    },
+    "reaction" => Set {
+      "./internal",
+    },
+    "IReactionOptions" => Set {
+      "./internal",
+    },
+    "when" => Set {
+      "./internal",
+    },
+    "IWhenOptions" => Set {
+      "./internal",
+    },
+    "action" => Set {
+      "./internal",
+    },
+    "isAction" => Set {
+      "./internal",
+    },
+    "runInAction" => Set {
+      "./internal",
+    },
+    "IActionFactory" => Set {
+      "./internal",
+    },
+    "keys" => Set {
+      "./internal",
+    },
+    "values" => Set {
+      "./internal",
+    },
+    "entries" => Set {
+      "./internal",
+    },
+    "set" => Set {
+      "./internal",
+    },
+    "remove" => Set {
+      "./internal",
+    },
+    "has" => Set {
+      "./internal",
+    },
+    "get" => Set {
+      "./internal",
+    },
+    "decorate" => Set {
+      "./internal",
+    },
+    "configure" => Set {
+      "./internal",
+    },
+    "onBecomeObserved" => Set {
+      "./internal",
+    },
+    "onBecomeUnobserved" => Set {
+      "./internal",
+    },
+    "flow" => Set {
+      "./internal",
+    },
+    "FlowCancellationError" => Set {
+      "./internal",
+    },
+    "isFlowCancellationError" => Set {
+      "./internal",
+    },
+    "toJS" => Set {
+      "./internal",
+    },
+    "trace" => Set {
+      "./internal",
+    },
+    "IObserverTree" => Set {
+      "./internal",
+    },
+    "IDependencyTree" => Set {
+      "./internal",
+    },
+    "getDependencyTree" => Set {
+      "./internal",
+    },
+    "getObserverTree" => Set {
+      "./internal",
+    },
+    "_resetGlobalState" => Set {
+      "./internal",
+    },
+    "_getGlobalState" => Set {
+      "./internal",
+    },
+    "getDebugName" => Set {
+      "./internal",
+    },
+    "getAtom" => Set {
+      "./internal",
+    },
+    "_getAdministration" => Set {
+      "./internal",
+    },
+    "_allowStateChanges" => Set {
+      "./internal",
+    },
+    "_allowStateChangesInsideComputed" => Set {
+      "./internal",
+    },
+    "Lambda" => Set {
+      "./internal",
+    },
+    "isArrayLike" => Set {
+      "./internal",
+    },
+    "$mobx" => Set {
+      "./internal",
+    },
+    "_isComputingDerivation" => Set {
+      "./internal",
+    },
+    "onReactionError" => Set {
+      "./internal",
+    },
+    "_interceptReads" => Set {
+      "./internal",
+    },
+    "IComputedValueOptions" => Set {
+      "./internal",
+    },
+    "IActionRunInfo" => Set {
+      "./internal",
+    },
+    "_startAction" => Set {
+      "./internal",
+    },
+    "_endAction" => Set {
+      "./internal",
+    },
+    "_allowStateReadsStart" => Set {
+      "./internal",
+    },
+    "_allowStateReadsEnd" => Set {
+      "./internal",
+    },
   },
   "moduleExportsToModuleSymbols": Map {},
   "moduleSymbolsToImports": Map {
@@ -3377,6 +3708,7 @@ Object {
     "$mobx" => Set {
       "./internal",
     },
+    "__MOBX_DEVTOOLS_GLOBAL_HOOK__" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "__MOBX_DEVTOOLS_GLOBAL_HOOK__" => Set {},
@@ -3386,10 +3718,12 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\modifiers.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "deepEnhancer" => Set {},
+    "shallowEnhancer" => Set {},
+    "referenceEnhancer" => Set {},
+    "refStructEnhancer" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "deepEnhancer" => Set {
       "isObservable",
@@ -3456,6 +3790,10 @@ Object {
     "observable" => Set {
       "../internal",
     },
+    "deepEnhancer" => Set {},
+    "shallowEnhancer" => Set {},
+    "referenceEnhancer" => Set {},
+    "refStructEnhancer" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "deepEnhancer" => Set {
@@ -3494,10 +3832,15 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\object-api.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "keys" => Set {},
+    "values" => Set {},
+    "entries" => Set {},
+    "set" => Set {},
+    "remove" => Set {},
+    "has" => Set {},
+    "get" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "keys" => Set {
       "keys",
@@ -3709,6 +4052,13 @@ Object {
     "startBatch" => Set {
       "../internal",
     },
+    "keys" => Set {},
+    "values" => Set {},
+    "entries" => Set {},
+    "set" => Set {},
+    "remove" => Set {},
+    "has" => Set {},
+    "get" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "keys" => Set {
@@ -3880,10 +4230,19 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\observable.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "hasObservers" => Set {},
+    "getObservers" => Set {},
+    "addObserver" => Set {},
+    "removeObserver" => Set {},
+    "queueForUnobservation" => Set {},
+    "startBatch" => Set {},
+    "endBatch" => Set {},
+    "reportObserved" => Set {},
+    "propagateChanged" => Set {},
+    "propagateChangeConfirmed" => Set {},
+    "propagateMaybeChanged" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "hasObservers" => Set {},
     "getObservers" => Set {},
@@ -3964,6 +4323,19 @@ Object {
     "checkIfStateReadsAreAllowed" => Set {
       "../internal",
     },
+    "hasObservers" => Set {},
+    "getObservers" => Set {},
+    "addObserver" => Set {},
+    "removeObserver" => Set {},
+    "queueForUnobservation" => Set {},
+    "startBatch" => Set {},
+    "endBatch" => Set {},
+    "reportObserved" => Set {},
+    "propagateChanged" => Set {},
+    "propagateChangeConfirmed" => Set {},
+    "propagateMaybeChanged" => Set {},
+    "logTraceInfo" => Set {},
+    "printDepTree" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "hasObservers" => Set {},
@@ -4035,10 +4407,10 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\observablearray.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "createObservableArray" => Set {},
+    "isObservableArray" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "createObservableArray" => Set {
       "ObservableArrayAdministration",
@@ -4136,6 +4508,12 @@ Object {
     "allowStateChangesEnd" => Set {
       "../internal",
     },
+    "MAX_SPLICE_SIZE" => Set {},
+    "arrayTraps" => Set {},
+    "createObservableArray" => Set {},
+    "arrayExtensions" => Set {},
+    "isObservableArrayAdministration" => Set {},
+    "isObservableArray" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "MAX_SPLICE_SIZE" => Set {},
@@ -4232,10 +4610,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\observabledecorator.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "createDecoratorForEnhancer" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "createDecoratorForEnhancer" => Set {
       "invariant",
@@ -4279,6 +4656,7 @@ Object {
     "stringifyKey" => Set {
       "../internal",
     },
+    "createDecoratorForEnhancer" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "createDecoratorForEnhancer" => Set {
@@ -4306,10 +4684,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\observablemap.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "isObservableMap" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "isObservableMap" => Set {
       "createInstanceofPredicate",
@@ -4420,6 +4797,7 @@ Object {
     "globalState" => Set {
       "../internal",
     },
+    "ObservableMapMarker" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "ObservableMapMarker" => Set {},
@@ -4429,10 +4807,12 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\observableobject.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "asObservableObject" => Set {},
+    "generateObservablePropConfig" => Set {},
+    "generateComputedPropConfig" => Set {},
+    "isObservableObject" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "asObservableObject" => Set {
       "Object",
@@ -4578,6 +4958,14 @@ Object {
     "globalState" => Set {
       "../internal",
     },
+    "asObservableObject" => Set {},
+    "observablePropertyConfigs" => Set {},
+    "computedPropertyConfigs" => Set {},
+    "generateObservablePropConfig" => Set {},
+    "getAdministrationForComputedPropOwner" => Set {},
+    "generateComputedPropConfig" => Set {},
+    "isObservableObjectAdministration" => Set {},
+    "isObservableObject" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "asObservableObject" => Set {
@@ -4641,10 +5029,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\observableset.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "isObservableSet" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "isObservableSet" => Set {
       "createInstanceofPredicate",
@@ -4731,6 +5118,7 @@ Object {
     "isES6Set" => Set {
       "../internal",
     },
+    "ObservableSetMarker" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "ObservableSetMarker" => Set {},
@@ -4740,10 +5128,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\observablevalue.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "isObservableValue" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "isObservableValue" => Set {
       "createInstanceofPredicate",
@@ -4832,10 +5219,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\observe.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "observe" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "observe" => Set {
       "observe",
@@ -4907,6 +5293,9 @@ Object {
     "ISetDidChange" => Set {
       "../internal",
     },
+    "observe" => Set {},
+    "observeObservable" => Set {},
+    "observeObservableProperty" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "observe" => Set {
@@ -4950,10 +5339,12 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\reaction.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "onReactionError" => Set {},
+    "runReactions" => Set {},
+    "isReaction" => Set {},
+    "setReactionScheduler" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "onReactionError" => Set {
       "globalState",
@@ -5034,6 +5425,12 @@ Object {
     "trackDerivedFunction" => Set {
       "../internal",
     },
+    "onReactionError" => Set {},
+    "MAX_REACTION_ITERATIONS" => Set {},
+    "reactionScheduler" => Set {},
+    "runReactions" => Set {},
+    "runReactionsHelper" => Set {},
+    "setReactionScheduler" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "onReactionError" => Set {
@@ -5067,10 +5464,13 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\spy.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "isSpyEnabled" => Set {},
+    "spyReport" => Set {},
+    "spyReportStart" => Set {},
+    "spyReportEnd" => Set {},
+    "spy" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "isSpyEnabled" => Set {
       "process",
@@ -5112,6 +5512,12 @@ Object {
     "once" => Set {
       "../internal",
     },
+    "isSpyEnabled" => Set {},
+    "spyReport" => Set {},
+    "spyReportStart" => Set {},
+    "END_EVENT" => Set {},
+    "spyReportEnd" => Set {},
+    "spy" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "isSpyEnabled" => Set {
@@ -5152,10 +5558,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\tojs.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "toJS" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "toJS" => Set {
       "toJS",
@@ -5192,6 +5597,10 @@ Object {
     "getPlainObjectKeys" => Set {
       "../internal",
     },
+    "defaultOptions" => Set {},
+    "cache" => Set {},
+    "toJSHelper" => Set {},
+    "toJS" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "defaultOptions" => Set {
@@ -5241,10 +5650,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\trace.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "trace" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "trace" => Set {
       "trace",
@@ -5272,6 +5680,8 @@ Object {
     "globalState" => Set {
       "../internal",
     },
+    "trace" => Set {},
+    "getAtomFromArgs" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "trace" => Set {
@@ -5296,10 +5706,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\transaction.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "transaction" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "transaction" => Set {
       "startBatch",
@@ -5315,6 +5724,7 @@ Object {
     "startBatch" => Set {
       "../internal",
     },
+    "transaction" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "transaction" => Set {
@@ -5329,10 +5739,11 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\type-utils.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "getAtom" => Set {},
+    "getAdministration" => Set {},
+    "getDebugName" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "getAtom" => Set {
       "isObservableArray",
@@ -5408,6 +5819,9 @@ Object {
     "isObservableSet" => Set {
       "../internal",
     },
+    "getAtom" => Set {},
+    "getAdministration" => Set {},
+    "getDebugName" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "getAtom" => Set {
@@ -5455,10 +5869,33 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\utils.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "OBFUSCATED_ERROR" => Set {},
+    "EMPTY_ARRAY" => Set {},
+    "EMPTY_OBJECT" => Set {},
+    "getNextId" => Set {},
+    "fail" => Set {},
+    "invariant" => Set {},
+    "deprecated" => Set {},
+    "once" => Set {},
+    "noop" => Set {},
+    "unique" => Set {},
+    "isObject" => Set {},
+    "isPlainObject" => Set {},
+    "makeNonEnumerable" => Set {},
+    "addHiddenProp" => Set {},
+    "addHiddenFinalProp" => Set {},
+    "isPropertyConfigurable" => Set {},
+    "assertPropertyConfigurable" => Set {},
+    "createInstanceofPredicate" => Set {},
+    "isArrayLike" => Set {},
+    "isES6Map" => Set {},
+    "isES6Set" => Set {},
+    "getPlainObjectKeys" => Set {},
+    "stringifyKey" => Set {},
+    "getMapLikeKeys" => Set {},
+    "toPrimitive" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "OBFUSCATED_ERROR" => Set {},
     "EMPTY_ARRAY" => Set {},
@@ -5587,6 +6024,28 @@ Object {
     "isObservableMap" => Set {
       "../internal",
     },
+    "getNextId" => Set {},
+    "fail" => Set {},
+    "invariant" => Set {},
+    "deprecatedMessages" => Set {},
+    "deprecated" => Set {},
+    "once" => Set {},
+    "unique" => Set {},
+    "isObject" => Set {},
+    "isPlainObject" => Set {},
+    "makeNonEnumerable" => Set {},
+    "addHiddenProp" => Set {},
+    "addHiddenFinalProp" => Set {},
+    "isPropertyConfigurable" => Set {},
+    "assertPropertyConfigurable" => Set {},
+    "createInstanceofPredicate" => Set {},
+    "isArrayLike" => Set {},
+    "isES6Map" => Set {},
+    "isES6Set" => Set {},
+    "getPlainObjectKeys" => Set {},
+    "stringifyKey" => Set {},
+    "getMapLikeKeys" => Set {},
+    "toPrimitive" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "getNextId" => Set {
@@ -5699,10 +6158,9 @@ Object {
 
 exports[`getSymbolMap snapshots __tests__\\test-data\\example-src\\when.ts 1`] = `
 Object {
-  "importModuleIdentifiers": Set {
-    "../internal",
+  "moduleExportsToDirectImports": Map {
+    "when" => Set {},
   },
-  "moduleExportsToDirectImports": Map {},
   "moduleExportsToModuleSymbols": Map {
     "when" => Set {
       "when",
@@ -5741,6 +6199,9 @@ Object {
     "getNextId" => Set {
       "../internal",
     },
+    "when" => Set {},
+    "_when" => Set {},
+    "whenPromise" => Set {},
   },
   "moduleSymbolsToOtherModuleSymbols": Map {
     "when" => Set {

@@ -14,11 +14,10 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./import-foo",
-              },
               "moduleExportsToDirectImports": Map {
-                "importedFoo" => "./import-foo",
+                "importedFoo" => Set {
+                  "./import-foo",
+                },
               },
               "moduleExportsToModuleSymbols": Map {},
               "moduleSymbolsToImports": Map {},
@@ -39,11 +38,10 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./import-foo",
-              },
               "moduleExportsToDirectImports": Map {
-                "exportedBar" => "./import-foo",
+                "exportedBar" => Set {
+                  "./import-foo",
+                },
               },
               "moduleExportsToModuleSymbols": Map {},
               "moduleSymbolsToImports": Map {},
@@ -66,10 +64,9 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./import-foo",
+              "moduleExportsToDirectImports": Map {
+                "default" => Set {},
               },
-              "moduleExportsToDirectImports": Map {},
               "moduleExportsToModuleSymbols": Map {
                 "default" => Set {
                   "foo",
@@ -100,10 +97,10 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./import-foo",
+              "moduleExportsToDirectImports": Map {
+                "exportedFoo1" => Set {},
+                "exportedFoo2" => Set {},
               },
-              "moduleExportsToDirectImports": Map {},
               "moduleExportsToModuleSymbols": Map {
                 "exportedFoo1" => Set {
                   "foo1",
@@ -140,11 +137,9 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./import-foo",
-                "./import-bar",
+              "moduleExportsToDirectImports": Map {
+                "singleExport" => Set {},
               },
-              "moduleExportsToDirectImports": Map {},
               "moduleExportsToModuleSymbols": Map {
                 "singleExport" => Set {
                   "foo",
@@ -180,10 +175,9 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./bar",
+              "moduleExportsToDirectImports": Map {
+                "someFunction" => Set {},
               },
-              "moduleExportsToDirectImports": Map {},
               "moduleExportsToModuleSymbols": Map {
                 "someFunction" => Set {
                   "bar",
@@ -193,6 +187,7 @@ describe('getSymbolMap', () => {
                 "bar" => Set {
                   "./bar",
                 },
+                "someFunction" => Set {},
               },
               "moduleSymbolsToOtherModuleSymbols": Map {
                 "someFunction" => Set {
@@ -219,10 +214,9 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./bar",
+              "moduleExportsToDirectImports": Map {
+                "default" => Set {},
               },
-              "moduleExportsToDirectImports": Map {},
               "moduleExportsToModuleSymbols": Map {
                 "default" => Set {
                   "bar",
@@ -232,6 +226,7 @@ describe('getSymbolMap', () => {
                 "bar" => Set {
                   "./bar",
                 },
+                "someFunction" => Set {},
               },
               "moduleSymbolsToOtherModuleSymbols": Map {
                 "someFunction" => Set {
@@ -261,11 +256,9 @@ describe('getSymbolMap', () => {
             const result = getSymbolMap(sourceFile);
             expect(result).toMatchInlineSnapshot(`
                 Object {
-                  "importModuleIdentifiers": Set {
-                    "./bar",
-                    "./foo",
+                  "moduleExportsToDirectImports": Map {
+                    "default" => Set {},
                   },
-                  "moduleExportsToDirectImports": Map {},
                   "moduleExportsToModuleSymbols": Map {
                     "default" => Set {
                       "foo",
@@ -279,6 +272,7 @@ describe('getSymbolMap', () => {
                     "foo" => Set {
                       "./foo",
                     },
+                    "someFunction" => Set {},
                   },
                   "moduleSymbolsToOtherModuleSymbols": Map {
                     "someFunction" => Set {
@@ -309,11 +303,9 @@ describe('getSymbolMap', () => {
             const result = getSymbolMap(sourceFile);
             expect(result).toMatchInlineSnapshot(`
                 Object {
-                  "importModuleIdentifiers": Set {
-                    "./bar",
-                    "./foo",
+                  "moduleExportsToDirectImports": Map {
+                    "default" => Set {},
                   },
-                  "moduleExportsToDirectImports": Map {},
                   "moduleExportsToModuleSymbols": Map {
                     "default" => Set {
                       "bar",
@@ -326,6 +318,7 @@ describe('getSymbolMap', () => {
                     "foo" => Set {
                       "./foo",
                     },
+                    "someFunction" => Set {},
                   },
                   "moduleSymbolsToOtherModuleSymbols": Map {
                     "someFunction" => Set {
@@ -358,11 +351,9 @@ describe('getSymbolMap', () => {
             const result = getSymbolMap(sourceFile);
             expect(result).toMatchInlineSnapshot(`
                 Object {
-                  "importModuleIdentifiers": Set {
-                    "./bar",
-                    "./foo",
+                  "moduleExportsToDirectImports": Map {
+                    "default" => Set {},
                   },
-                  "moduleExportsToDirectImports": Map {},
                   "moduleExportsToModuleSymbols": Map {
                     "default" => Set {
                       "foo",
@@ -401,11 +392,9 @@ describe('getSymbolMap', () => {
             const result = getSymbolMap(sourceFile);
             expect(result).toMatchInlineSnapshot(`
                 Object {
-                  "importModuleIdentifiers": Set {
-                    "./bar",
-                    "./foo",
+                  "moduleExportsToDirectImports": Map {
+                    "default" => Set {},
                   },
-                  "moduleExportsToDirectImports": Map {},
                   "moduleExportsToModuleSymbols": Map {
                     "default" => Set {
                       "bar",
@@ -444,11 +433,9 @@ describe('getSymbolMap', () => {
             const result = getSymbolMap(sourceFile);
             expect(result).toMatchInlineSnapshot(`
                 Object {
-                  "importModuleIdentifiers": Set {
-                    "./bar",
-                    "./foo",
+                  "moduleExportsToDirectImports": Map {
+                    "default" => Set {},
                   },
-                  "moduleExportsToDirectImports": Map {},
                   "moduleExportsToModuleSymbols": Map {
                     "default" => Set {
                       "bar",
@@ -486,11 +473,9 @@ describe('getSymbolMap', () => {
             const result = getSymbolMap(sourceFile);
             expect(result).toMatchInlineSnapshot(`
                 Object {
-                  "importModuleIdentifiers": Set {
-                    "./bar",
-                    "./foo",
+                  "moduleExportsToDirectImports": Map {
+                    "default" => Set {},
                   },
-                  "moduleExportsToDirectImports": Map {},
                   "moduleExportsToModuleSymbols": Map {
                     "default" => Set {
                       "bar",
@@ -530,11 +515,9 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./bar",
-                "./foo",
+              "moduleExportsToDirectImports": Map {
+                "default" => Set {},
               },
-              "moduleExportsToDirectImports": Map {},
               "moduleExportsToModuleSymbols": Map {
                 "default" => Set {
                   "bar",
@@ -582,14 +565,9 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./bar",
-                "./foo",
-                "./baz",
-                "./bam",
-                "./e",
+              "moduleExportsToDirectImports": Map {
+                "x" => Set {},
               },
-              "moduleExportsToDirectImports": Map {},
               "moduleExportsToModuleSymbols": Map {
                 "x" => Set {
                   "console",
@@ -640,12 +618,9 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./bar",
-                "./foo",
-                "./baz",
+              "moduleExportsToDirectImports": Map {
+                "default" => Set {},
               },
-              "moduleExportsToDirectImports": Map {},
               "moduleExportsToModuleSymbols": Map {
                 "default" => Set {
                   "bar",
@@ -688,12 +663,9 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./bar",
-                "./foo",
-                "./baz",
+              "moduleExportsToDirectImports": Map {
+                "default" => Set {},
               },
-              "moduleExportsToDirectImports": Map {},
               "moduleExportsToModuleSymbols": Map {
                 "default" => Set {
                   "a",
@@ -709,6 +681,8 @@ describe('getSymbolMap', () => {
                 "baz" => Set {
                   "./baz",
                 },
+                "a" => Set {},
+                "b" => Set {},
               },
               "moduleSymbolsToOtherModuleSymbols": Map {
                 "a" => Set {
@@ -742,12 +716,9 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./bar",
-                "./foo",
-                "./baz",
+              "moduleExportsToDirectImports": Map {
+                "default" => Set {},
               },
-              "moduleExportsToDirectImports": Map {},
               "moduleExportsToModuleSymbols": Map {
                 "default" => Set {
                   "a",
@@ -763,6 +734,9 @@ describe('getSymbolMap', () => {
                 "baz" => Set {
                   "./baz",
                 },
+                "a" => Set {},
+                "b" => Set {},
+                "c" => Set {},
               },
               "moduleSymbolsToOtherModuleSymbols": Map {
                 "a" => Set {
@@ -797,12 +771,9 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./bar",
-                "./foo",
-                "./baz",
+              "moduleExportsToDirectImports": Map {
+                "default" => Set {},
               },
-              "moduleExportsToDirectImports": Map {},
               "moduleExportsToModuleSymbols": Map {
                 "default" => Set {
                   "a",
@@ -818,6 +789,9 @@ describe('getSymbolMap', () => {
                 "baz" => Set {
                   "./baz",
                 },
+                "a" => Set {},
+                "b" => Set {},
+                "c" => Set {},
               },
               "moduleSymbolsToOtherModuleSymbols": Map {
                 "a" => Set {
@@ -857,12 +831,9 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./bar",
-                "./foo",
-                "./baz",
+              "moduleExportsToDirectImports": Map {
+                "default" => Set {},
               },
-              "moduleExportsToDirectImports": Map {},
               "moduleExportsToModuleSymbols": Map {
                 "default" => Set {
                   "a",
@@ -878,6 +849,8 @@ describe('getSymbolMap', () => {
                 "baz" => Set {
                   "./baz",
                 },
+                "a" => Set {},
+                "b" => Set {},
               },
               "moduleSymbolsToOtherModuleSymbols": Map {
                 "a" => Set {
@@ -911,12 +884,9 @@ describe('getSymbolMap', () => {
         const result = getSymbolMap(sourceFile);
         expect(result).toMatchInlineSnapshot(`
             Object {
-              "importModuleIdentifiers": Set {
-                "./bar",
-                "./foo",
-                "./baz",
+              "moduleExportsToDirectImports": Map {
+                "default" => Set {},
               },
-              "moduleExportsToDirectImports": Map {},
               "moduleExportsToModuleSymbols": Map {
                 "default" => Set {
                   "a",
@@ -932,6 +902,9 @@ describe('getSymbolMap', () => {
                 "baz" => Set {
                   "./baz",
                 },
+                "a" => Set {},
+                "b" => Set {},
+                "d" => Set {},
               },
               "moduleSymbolsToOtherModuleSymbols": Map {
                 "a" => Set {
@@ -949,5 +922,279 @@ describe('getSymbolMap', () => {
               },
             }
         `);
+    });
+
+    describe('require() tracking', () => {
+        it('tracks const named exports that depend directly on requires', () => {
+            const sourceFile = ts.createSourceFile(
+                'example.ts',
+                `
+                export const foo = require('./bar')
+                `,
+                ts.ScriptTarget.ES2015,
+            );
+
+            const result = getSymbolMap(sourceFile);
+            expect(result).toMatchInlineSnapshot(`
+                Object {
+                  "moduleExportsToDirectImports": Map {
+                    "foo" => Set {
+                      "./bar",
+                    },
+                  },
+                  "moduleExportsToModuleSymbols": Map {
+                    "foo" => Set {
+                      "require",
+                    },
+                  },
+                  "moduleSymbolsToImports": Map {},
+                  "moduleSymbolsToOtherModuleSymbols": Map {},
+                }
+            `);
+        });
+        it('tracks default exports that depend directly on requires', () => {
+            const sourceFile = ts.createSourceFile(
+                'example.ts',
+                `
+                export default foo = require('./bar')
+                `,
+                ts.ScriptTarget.ES2015,
+            );
+
+            const result = getSymbolMap(sourceFile);
+            expect(result).toMatchInlineSnapshot(`
+                Object {
+                  "moduleExportsToDirectImports": Map {
+                    "default" => Set {
+                      "./bar",
+                    },
+                  },
+                  "moduleExportsToModuleSymbols": Map {
+                    "default" => Set {
+                      "foo",
+                      "require",
+                    },
+                  },
+                  "moduleSymbolsToImports": Map {},
+                  "moduleSymbolsToOtherModuleSymbols": Map {},
+                }
+            `);
+        });
+        it('tracks exports that depend indirectly via a require in a lambda function body', () => {
+            const sourceFile = ts.createSourceFile(
+                'example.ts',
+                `
+                const internalFunction = () => {
+                  return require('./bar')
+                }
+                export default foo = internalFunction()
+                `,
+                ts.ScriptTarget.ES2015,
+            );
+
+            const result = getSymbolMap(sourceFile);
+            expect(result).toMatchInlineSnapshot(`
+                Object {
+                  "moduleExportsToDirectImports": Map {
+                    "default" => Set {},
+                  },
+                  "moduleExportsToModuleSymbols": Map {
+                    "default" => Set {
+                      "foo",
+                      "internalFunction",
+                    },
+                  },
+                  "moduleSymbolsToImports": Map {
+                    "internalFunction" => Set {
+                      "./bar",
+                    },
+                  },
+                  "moduleSymbolsToOtherModuleSymbols": Map {
+                    "internalFunction" => Set {
+                      "require",
+                    },
+                  },
+                }
+            `);
+        });
+
+        it('tracks exports that depend indirectly via a require in a non-lambda function expression body', () => {
+            const sourceFile = ts.createSourceFile(
+                'example.ts',
+                `
+                const internalFunction = function() {
+                  return require('./bar')
+                }
+                export default foo = internalFunction()
+                `,
+                ts.ScriptTarget.ES2015,
+            );
+
+            const result = getSymbolMap(sourceFile);
+            expect(result).toMatchInlineSnapshot(`
+                Object {
+                  "moduleExportsToDirectImports": Map {
+                    "default" => Set {},
+                  },
+                  "moduleExportsToModuleSymbols": Map {
+                    "default" => Set {
+                      "foo",
+                      "internalFunction",
+                    },
+                  },
+                  "moduleSymbolsToImports": Map {
+                    "internalFunction" => Set {
+                      "./bar",
+                    },
+                  },
+                  "moduleSymbolsToOtherModuleSymbols": Map {
+                    "internalFunction" => Set {
+                      "require",
+                    },
+                  },
+                }
+            `);
+        });
+
+        it('tracks exports that depend indirectly via a require in a function declaration', () => {
+            const sourceFile = ts.createSourceFile(
+                'example.ts',
+                `
+                function internalFunction() {
+                  return require('./bar')
+                }
+                export default foo = internalFunction()
+                `,
+                ts.ScriptTarget.ES2015,
+            );
+
+            const result = getSymbolMap(sourceFile);
+            expect(result).toMatchInlineSnapshot(`
+                Object {
+                  "moduleExportsToDirectImports": Map {
+                    "default" => Set {},
+                  },
+                  "moduleExportsToModuleSymbols": Map {
+                    "default" => Set {
+                      "foo",
+                      "internalFunction",
+                    },
+                  },
+                  "moduleSymbolsToImports": Map {
+                    "internalFunction" => Set {
+                      "./bar",
+                    },
+                  },
+                  "moduleSymbolsToOtherModuleSymbols": Map {
+                    "internalFunction" => Set {
+                      "require",
+                    },
+                  },
+                }
+            `);
+        });
+
+        it('tracks exports that depend indirectly via a require in a non-forward-declared function declaration', () => {
+            const sourceFile = ts.createSourceFile(
+                'example.ts',
+                `
+                export default foo = internalFunction()
+
+                function internalFunction() {
+                  return require('./bar')
+                }
+                `,
+                ts.ScriptTarget.ES2015,
+            );
+
+            const result = getSymbolMap(sourceFile);
+            expect(result).toMatchInlineSnapshot(`
+                Object {
+                  "moduleExportsToDirectImports": Map {
+                    "default" => Set {},
+                  },
+                  "moduleExportsToModuleSymbols": Map {
+                    "default" => Set {
+                      "foo",
+                      "internalFunction",
+                    },
+                  },
+                  "moduleSymbolsToImports": Map {
+                    "internalFunction" => Set {
+                      "./bar",
+                    },
+                  },
+                  "moduleSymbolsToOtherModuleSymbols": Map {
+                    "internalFunction" => Set {
+                      "require",
+                    },
+                  },
+                }
+            `);
+        });
+
+        it('tracks exports that depend indirectly via a constant in the module', () => {
+            const sourceFile = ts.createSourceFile(
+                'example.ts',
+                `
+                import { observer } from 'mobx-react';
+                import { patchStylesForTheme } from 'styles-patcher';
+                const styles = require('./styles.scss')
+
+                const patchedStyles = patchStylesForTheme(styles)
+
+                function MyComponentInner(props: any) {
+                  return <div styles={patchedStyles.Container}>Thing</div>
+                }
+
+                export const MyComponent = observer(MyComponentInner)
+                `,
+                ts.ScriptTarget.ES2015,
+            );
+
+            const result = getSymbolMap(sourceFile);
+            expect(result).toMatchInlineSnapshot(`
+                Object {
+                  "moduleExportsToDirectImports": Map {
+                    "MyComponent" => Set {},
+                  },
+                  "moduleExportsToModuleSymbols": Map {
+                    "MyComponent" => Set {
+                      "observer",
+                      "MyComponentInner",
+                    },
+                  },
+                  "moduleSymbolsToImports": Map {
+                    "observer" => Set {
+                      "mobx-react",
+                    },
+                    "patchStylesForTheme" => Set {
+                      "styles-patcher",
+                    },
+                    "styles" => Set {
+                      "./styles.scss",
+                    },
+                    "patchedStyles" => Set {},
+                    "MyComponentInner" => Set {},
+                  },
+                  "moduleSymbolsToOtherModuleSymbols": Map {
+                    "styles" => Set {
+                      "require",
+                    },
+                    "patchedStyles" => Set {
+                      "patchStylesForTheme",
+                      "styles",
+                    },
+                    "MyComponentInner" => Set {
+                      "div",
+                      "styles",
+                      "patchedStyles",
+                      "",
+                      "Thing",
+                    },
+                  },
+                }
+            `);
+        });
     });
 });
